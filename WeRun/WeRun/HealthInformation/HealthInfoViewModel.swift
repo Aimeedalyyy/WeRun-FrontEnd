@@ -66,6 +66,12 @@ class HealthInfoViewModel: ObservableObject {
     
   }
   
+  func getCurrentMenstrualPhase() -> String {
+    
+    
+    
+    return "You are currently on your period"
+  }
   
 
   
@@ -102,8 +108,13 @@ class HealthInfoViewModel: ObservableObject {
     }
   }
   
-  func saveData(flow: Int, date: Date) async {
+  func saveData(flow: Int, date: Date, symptoms: [Symptoms]) async {
     HealthKitManager.shared.saveMenstrualFlow(flow: flow , start: date, end: date)
+    for symptom in symptoms {
+      
+      print(symptom)
+      HealthKitManager.shared.saveSymptom(symptom)
+    }
   }
   
   func sendSymptoms(symptoms: [Symptoms]) async {

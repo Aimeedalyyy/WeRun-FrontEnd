@@ -10,4 +10,5 @@ import Foundation
 struct Test: Codable, Hashable {
   let test_name: String
   let test_number: Int
+  let current_date: String
 }

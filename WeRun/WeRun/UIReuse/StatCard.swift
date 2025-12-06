@@ -41,3 +41,7 @@ struct StatCard: View {
         .cornerRadius(15)
     }
 }
+
+#Preview {
+  StatCard(title: "hello", value: "four", unit: "9.99", icon: "speedometer")
+}

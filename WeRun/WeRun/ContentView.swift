@@ -4,6 +4,8 @@
 //
 //  Created by Aimee Daly on 22/11/2025.
 //
+//
+
 
 import SwiftUI
 import Foundation
@@ -12,6 +14,7 @@ struct ContentView: View {
   @StateObject private var viewModel = AppViewModel()
   @StateObject private var healthViewModel = HealthInfoViewModel()
   @StateObject private var runningViewModel = RunningViewModel()
+  @StateObject private var analysisViewModel = AnalysisViewModel()
   
   var body: some View {
     NavigationStack {
@@ -21,21 +24,24 @@ struct ContentView: View {
             VStack {
               if viewModel.isLoading {
                 ProgressView("Loading...")
-              } else if viewModel.tests.test_number == 1 {
-                VStack {
-                  Text("Return from server !")
-                  Text(viewModel.tests.test_name)
-                  Text(String(viewModel.tests.test_number))
+              } else if let test = viewModel.tests {
+                Text("You will able to see posts from others soon...")
+
+                ScrollView{
+                  PostCard(phase: test.calculated_phase, colour: viewModel.getPhaseColor(for: test.calculated_phase))
                 }
+                .padding(.horizontal, 8)
               } else {
                 Text("No data available")
               }
             }
             .background(Color.gray.opacity(0.05))
-            .task {
-              await viewModel.testCall()
+            .onAppear() {
+              Task{
+                await viewModel.testCall()
+
+              }
             }
-            
           }
           
         }
@@ -48,7 +54,7 @@ struct ContentView: View {
         }
         Tab("", systemImage: "chart.line.text.clipboard") {
           NavigationStack {
-            EmptyView()
+            AnalysisMainView(viewModel: analysisViewModel)
               .background(Color.gray.opacity(0.05))
             
           }

@@ -9,12 +9,15 @@
 import SwiftUI
 
 enum FlowType: String, CaseIterable {
+  case one // no flow
   case two // light flow
   case three // medium flow
   case four // heavy
   
   var string: String{
     switch self {
+    case .one:
+      return "no flow"
     case .two:
       return "light"
     case .three:
@@ -26,6 +29,8 @@ enum FlowType: String, CaseIterable {
   
   var intValue: Int{
     switch self{
+    case .one:
+      return 1
     case .two:
       return 2
     case .three:
@@ -37,11 +42,11 @@ enum FlowType: String, CaseIterable {
 }
 
 struct SubmitData: View {
-  
-  
   @ObservedObject var viewModel: HealthInfoViewModel
   @State var flow: FlowType = .two
   @State private var selectedItems: Set<Symptoms> = []
+  @State private var motivation = 10.0
+  @State private var isEditingMotivation = false
   let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 3)
   
   
@@ -85,13 +90,35 @@ struct SubmitData: View {
       }
       .padding()
       
+//      // Motivation level section
+//      Text("How motivated did you feel today?")
+//          .font(.subheadline)
+//          .fontWeight(.bold)
+//          .foregroundColor(.accentRed)
+//
+//      VStack {
+//          Slider(
+//              value: $motivation,
+//              in: 0...10,
+//              onEditingChanged: { editing in
+//                  isEditingMotivation = editing
+//              }
+//          )
+//          .tint(.accentRed)
+//          .padding(.horizontal, 24)
+//
+//          Text("Motivation: \(Int(motivation))")
+//              .foregroundColor(isEditingMotivation ? .accentRed : .primary)
+//              .font(.headline)
+//      }
+//      .padding(.bottom, 24)
+      
       Button("Submit"){
         Task
         {
           print("flow: \(flow.intValue), date: \(Date())")
-          await viewModel.sendSymptoms(symptoms: Array(selectedItems))
           clearSelectedItems()
-          await viewModel.saveData(flow: flow.intValue, date: Date())
+          await viewModel.saveData(flow: flow.intValue, date: Date(), symptoms: Array(selectedItems))
           
           
         }
@@ -117,6 +144,7 @@ struct SubmitData: View {
   
   private func clearSelectedItems() {
     selectedItems.removeAll()
+    motivation = 0
   }
 
   

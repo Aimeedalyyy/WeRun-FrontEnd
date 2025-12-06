@@ -77,13 +77,6 @@ struct HealthInfoMainView: View {
     }
   }
   
-  @ViewBuilder var submitTodaysInfo: some View{
-    Text("")
-    Button("button"){
-      Task { await viewModel.saveData(flow: 1 ,date: Date()) }
-    }
-  }
-  
   @ViewBuilder var InfoBox: some View {
     let colour: InfoBoxColour = .red
         VStack(alignment: .center, spacing: 8){

@@ -5,36 +5,52 @@
 //  Created by Aimee Daly on 25/11/2025.
 //
 
+let baseURL =  "http://0.0.0.0:8000/api/"
+
 
 import Foundation
+import SwiftUI
 
 class AppViewModel: ObservableObject {
   
-  @Published var tests: Test = Test(test_name: "", test_number: 0)
+  @Published var tests: TestResponse?
   @Published var isLoading = true
   
   func testCall() async {
-    guard let url = URL(string: "http://127.0.0.1:8000/api/test/") else {
-      print("⚠️⚠️ Invalid URL ⚠️⚠️")
+    if (tests != nil){
       return
     }
-    
-    var request = URLRequest(url: url)
-    request.httpMethod = "GET"
-    request.addValue("application/json", forHTTPHeaderField: "Accept")
-    
     do {
-      let (data, _) = try await URLSession.shared.data(for: request)
-      let test = try JSONDecoder().decode(Test.self, from: data)
-      print(tests)
-      await MainActor.run {
-          self.tests = test
-          self.isLoading = false
+      
+      let test = try await APIManager.shared.testAPI(lastPeriodStart: "2025-11-20T00:00:00Z")
+      print("Test API:", test)
+      
+      DispatchQueue.main.async {
+        self.tests = test
+        self.isLoading = false
       }
-    } catch {
-      print("⚠️⚠️ Failed to load test: \(error) ⚠️⚠️")
+      
+      
+      
     }
+    catch { print("API Error:", error) }
   }
+  
+  func getPhaseColor(for phase: String) -> Color {
+      switch phase.lowercased() {
+      case "menstrual":
+        return .accentRed
+      case "follicular":
+          return .accentgreen
+      case "ovulatory":
+        return .accentPink
+      case "luteal":
+          return .accentPurple
+      default:
+          return .accentRed
+      }
+  }
+  
 }
   
 extension URLRequest {

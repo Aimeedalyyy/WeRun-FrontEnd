@@ -63,3 +63,28 @@ struct HistoricalStats: Codable {
     let avg_motivation: Double?
     let total_entries: Int?
 }
+
+struct LoginRequest: Codable {
+    let username: String
+    let password: String
+}
+
+struct JWTResponse: Codable {
+    let access: String
+    let refresh: String
+}
+
+
+struct RegisterResponse: Codable {
+    let id: Int
+    let username: String
+    let email: String
+    let affiliated_user: Int?
+}
+
+struct RegisterRequest: Codable {
+    let username: String
+    let email: String
+    let password: String
+    let affiliated_user: Int?
+}

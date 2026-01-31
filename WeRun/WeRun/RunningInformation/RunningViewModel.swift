@@ -44,7 +44,7 @@ class RunningViewModel: ObservableObject {
   
   func fetchAllRunningWorkout() async {
     if self.isAuthorized {
-      print(HealthKitManager.shared.fetchAllRunningWorkouts { _ in })
+//      print(HealthKitManager.shared.fetchAllRunningWorkouts { _ in })
       return
     } else {
       self.errorMessage = "We don't have access to your Health Information! Make sure to allow access to your Health info in your Settings."

@@ -21,17 +21,11 @@ class AppViewModel: ObservableObject {
       return
     }
     do {
-      
       let test = try await APIManager.shared.testAPI(lastPeriodStart: "2025-11-20T00:00:00Z")
-      print("Test API:", test)
-      
       DispatchQueue.main.async {
         self.tests = test
         self.isLoading = false
       }
-      
-      
-      
     }
     catch { print("API Error:", error) }
   }

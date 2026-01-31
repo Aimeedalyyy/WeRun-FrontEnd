@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct WeRunApp: App {
+  @StateObject private var authState = AppAuthState()
+
     var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+      WindowGroup {
+        ContentView()
+            .environmentObject(authState)
+
+      }
     }
 }

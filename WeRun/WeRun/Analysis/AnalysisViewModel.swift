@@ -16,28 +16,19 @@ class AnalysisViewModel: ObservableObject{
 
   
   func getAnalysis() async {
-    guard let url = URL(string: baseURL + "all-phases-comparison/") else {
-      print("⚠️⚠️ Invalid URL ⚠️⚠️")
-      return
-    }
-    
-    var request = URLRequest(url: url)
-    request.httpMethod = "GET"
-    request.addValue("application/json", forHTTPHeaderField: "Accept")
-    
     do {
-      let (data, _) = try await URLSession.shared.data(for: request)
-      let analysisResponse = try JSONDecoder().decode(PhaseComparisonResponse.self, from: data)
-      print(analysisResponse)
-      await MainActor.run {
-          self.analysisResponse = analysisResponse
-          self.phases = analysisResponse.phases
-          self.isLoading = false
+      let analysisResponse = try await APIManager.shared.getAnalysis()
+      DispatchQueue.main.async {
+        self.analysisResponse = analysisResponse
+        self.phases = analysisResponse.phases
+        self.isLoading = false
       }
-    } catch {
-      print("⚠️⚠️ Failed to load test: \(error) ⚠️⚠️")
+      print("🐞🐞🐞 \(self.analysisResponse as Any) 🐞🐞")
     }
+    catch { print("API Error:", error) }
   }
+  
+
   
   func getPaceStatString(phase: PhaseStats) -> returnString {
       // Find the phase with the fastest pace (lowest value)

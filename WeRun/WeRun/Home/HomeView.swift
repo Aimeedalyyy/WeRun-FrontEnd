@@ -15,10 +15,8 @@ struct HomeView: View {
   @StateObject private var analysisViewModel = AnalysisViewModel()
   
   var body: some View {
-    NavigationStack {
       TabView {
         Tab("", systemImage: "house.fill") {
-          NavigationStack {
             VStack {
               if viewModel.isLoading {
                 ProgressView("Loading...")
@@ -40,38 +38,31 @@ struct HomeView: View {
 
               }
             }
-          }
-          
+
         }
         Tab("", systemImage: "heart.text.square") {
-          NavigationStack {
             HealthInfoMainView(viewModel: healthViewModel)
               .background(Color.gray.opacity(0.05))
-          }
           
         }
         Tab("", systemImage: "chart.line.text.clipboard") {
-          NavigationStack {
             AnalysisMainView(viewModel: analysisViewModel)
               .background(Color.gray.opacity(0.05))
             
-          }
+          
         }
         Tab("", systemImage: "figure.run.square.stack") {
-          NavigationStack {
             RunningMainView(viewModel: runningViewModel)
               .background(Color.gray.opacity(0.05))
-          }
+          
         }
         Tab("", systemImage: "person.crop.circle.fill") {
-          NavigationStack {
             UserSettingsView()
               .background(Color.gray.opacity(0.05))
-          }
         }
       }
       
-    }
+    
     .tabViewStyle(
       backgroundColor: .accentPurple,
       itemColor: .backgroundGrey.opacity(0.4),

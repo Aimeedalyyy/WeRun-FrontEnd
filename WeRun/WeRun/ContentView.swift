@@ -15,16 +15,13 @@ struct ContentView: View {
   
   var body: some View {
     NavigationStack {
-      ZStack {
         if authState.isAuthenticated {
           HomeView()
             .transition(.move(edge: .trailing).combined(with: .opacity))
-            .id(authState.isAuthenticated)
         } else {
           LoginRegisterView()
             .transition(.move(edge: .leading).combined(with: .opacity))
         }
-      }
     }
   }
 }

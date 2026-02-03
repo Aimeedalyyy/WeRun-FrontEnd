@@ -13,7 +13,6 @@ struct LoginRegisterView: View {
     @StateObject private var viewModel = AuthViewModel()
 
     var body: some View {
-        NavigationStack {
             VStack(spacing: 20) {
                 // Toggle between Login/Register
                 Picker("Mode", selection: $viewModel.mode) {
@@ -78,6 +77,6 @@ struct LoginRegisterView: View {
             }
             .padding()
             .navigationTitle(viewModel.mode == .login ? "Login" : "Register")
-        }
+        
     }
 }

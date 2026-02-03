@@ -22,7 +22,6 @@ struct HealthInfoMainView: View {
       case .loading, .idle:
         loadingView
       case .loaded:
-        NavigationStack {
           content
             .onAppear(){
               Task{
@@ -35,7 +34,7 @@ struct HealthInfoMainView: View {
             SubmitData(viewModel: viewModel)
               .background(Color.gray.opacity(0.05))
           }
-        }
+        
        
       case .error:
         Text(viewModel.errorMessage ?? "An unknown error occurred.")

@@ -9,12 +9,14 @@ import Foundation
 
 @MainActor
 final class AppAuthState: ObservableObject {
-    @Published var isAuthenticated: Bool = AuthManager.shared.isAuthenticated
+  @Published var isAuthenticated: Bool = false
+
+
 
     func logout() {
         AuthManager.shared.logout()
         isAuthenticated = false
-        print("🐞 Logged Out")
+        print("🐞 Logged Out \(isAuthenticated)")
     }
 
     func loginSucceeded() {

@@ -28,7 +28,7 @@ final class AuthManager {
     }
 
     var isAuthenticated: Bool {
-      print("🐞🐞 access token: \(accessToken ?? nil) 🐞🐞")
+        print("🐞🐞 access token: \(accessToken ?? nil) 🐞🐞")
         return accessToken != nil
     }
 

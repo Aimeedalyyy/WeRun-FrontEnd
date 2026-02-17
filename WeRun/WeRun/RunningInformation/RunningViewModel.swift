@@ -29,6 +29,10 @@ class RunningViewModel: ObservableObject {
   @Published var showDatePicker = false
   @Published var completedWorkoutData: (distance: Double, duration: TimeInterval, calories: Double, startDate: Date, pace: Double)?
   @Published var showWorkoutSummary = false
+  @Published var showPostRunQuestionnaire: Bool = false
+  @Published var initialRPE: Int = 5
+  
+  
   @Published var motivationLevel: Int = 5
   
   @Published var showMotivationInput = false
@@ -81,7 +85,8 @@ class RunningViewModel: ObservableObject {
           
           // Show summary after alert
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.showWorkoutSummary = true
+            self.showPostRunQuestionnaire = true
+//            self.showWorkoutSummary = true
           }
       }
       

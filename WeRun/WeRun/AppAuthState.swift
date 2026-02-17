@@ -16,7 +16,7 @@ final class AppAuthState: ObservableObject {
     func logout() {
         AuthManager.shared.logout()
         isAuthenticated = false
-        print("🐞 Logged Out \(isAuthenticated)")
+        print("🐞 Logged Out: \(isAuthenticated)")
     }
 
     func loginSucceeded() {

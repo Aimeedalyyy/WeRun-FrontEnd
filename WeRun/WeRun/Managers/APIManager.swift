@@ -60,11 +60,6 @@ class APIManager {
     if http.statusCode == 401 {
       print("🔐 401 received, retryOnAuthFailure=\(retryOnAuthFailure)")
       
-//      guard retryOnAuthFailure else {
-//        AuthManager.shared.logout()
-//        throw URLError(.userAuthenticationRequired)
-//      }
-//      
       let refreshed = await refreshAccessToken()
       
       
@@ -145,14 +140,13 @@ class APIManager {
     // Log a run
   func logRun(run: RunEntryRequest) async throws -> [String: Any] {
     let body = try JSONEncoder().encode(run)
-    guard let url = URL(string: baseURL + "api/log-run/") else { throw URLError(.badURL) }
+    guard let url = URL(string: baseURL + "log-run/") else { throw URLError(.badURL) }
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-    // Use dynamic token if available
-//    if let token = token {
-//      request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-//    }
+    if let accessToken = AuthManager.shared.accessToken {
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+    }
     
     request.httpBody = body
     

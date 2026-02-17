@@ -9,58 +9,61 @@ import SwiftUI
 
 struct LoginView: View {
     @StateObject private var viewModel = loginViewModel()
-    
+
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Login")
-                .font(.largeTitle)
-                .bold()
-            
-            TextField("Username", text: $viewModel.username)
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
-                .autocapitalization(.none)
-            
-            SecureField("Password", text: $viewModel.password)
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
-            
-            if viewModel.isLoading {
-                ProgressView()
-            }
-            
-            Button(action: {
-                Task {
-                    await viewModel.login()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 28) {
+
+                // MARK: Header
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Welcome back")
+                        .font(.title.bold())
+                        .foregroundColor(.accentPurple)
+
+                    Text("Log in to continue tracking your performance.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
-            }) {
-                Text("Login")
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(8)
+
+                // MARK: Fields
+                VStack(spacing: 16) {
+                    TextField("Username", text: $viewModel.username)
+                        .padding()
+                        .background(Color.backgroundGrey.opacity(0.2))
+                        .cornerRadius(12)
+                        .autocapitalization(.none)
+
+                    SecureField("Password", text: $viewModel.password)
+                        .padding()
+                        .background(Color.backgroundGrey.opacity(0.2))
+                        .cornerRadius(12)
+                }
+
+                // MARK: Loading
+                if viewModel.isLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                }
+
+
+                // MARK: Error
+                if let error = viewModel.error {
+                    Text(error.localizedDescription)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 8)
+                }
+
+                Spacer(minLength: 20)
             }
-            
-            if let token = viewModel.token {
-                Text("Logged in! Token: \(token)")
-                    .foregroundColor(.green)
-                    .padding()
-            }
-            
-            if let error = viewModel.error {
-                Text("Error")
-                    .foregroundColor(.red)
-                    .padding()
-            }
-            
-            Spacer()
+            .padding(24)
         }
-        .padding()
+        .navigationTitle("Log In")
     }
 }
+
+
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {

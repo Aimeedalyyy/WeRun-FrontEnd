@@ -16,9 +16,11 @@ enum InfoBoxColour{
   
   var backgroundColour: Color{
     switch self {
-    case .red, .purple:
+    case .red:
       return .infoRed
-    }
+    case .purple:
+      return .backroundPurple
+  }
   }
     
     var textColor: Color {

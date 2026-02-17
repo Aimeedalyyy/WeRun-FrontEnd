@@ -60,6 +60,9 @@ struct RunningMainView: View {
             .sheet(isPresented: $viewModel.showMotivationInput) {
                 motivationInputSheet
             }
+            .sheet(isPresented: $viewModel.showPostRunQuestionnaire){
+                postRunSheet
+            }
             .confirmationDialog("Are you sure you want to finish the workout?", isPresented: $viewModel.showStopConfirmation, titleVisibility: .visible) {
                 Button("Finish Workout", role: .destructive) {
                   viewModel.finishWorkout()
@@ -195,6 +198,74 @@ struct RunningMainView: View {
             }
         }
     }
+  
+  private var postRunSheet: some View {
+      NavigationView {
+          VStack(spacing: 30) {
+              Text("How did that workout feel")
+                  .font(.title2)
+                  .fontWeight(.semibold)
+                  .foregroundColor(.accentgreen)
+                  .multilineTextAlignment(.center)
+                  .padding(.top, 40)
+              
+              VStack(spacing: 10) {
+                Text("\(viewModel.initialRPE)")
+                      .font(.system(size: 60, weight: .bold))
+                      .foregroundColor(.accentgreen)
+                  
+                Text(rpeDescription(for: viewModel.initialRPE))
+                      .font(.subheadline)
+                      .foregroundColor(.accentgreen.opacity(0.8))
+              }
+              
+              Slider(value: Binding(
+                get: { Double(viewModel.initialRPE) },
+                set: { viewModel.initialRPE = Int($0) }
+              ), in: 1...10, step: 1)
+                  .accentColor(.accentgreen)
+                  .padding(.horizontal, 40)
+              
+              HStack {
+                  Text("Easy")
+                      .font(.caption)
+                      .foregroundColor(.accentgreen.opacity(0.6))
+                  Spacer()
+                  Text("Difficult")
+                      .font(.caption)
+                      .foregroundColor(.accentgreen.opacity(0.6))
+              }
+              .padding(.horizontal, 40)
+              
+              Spacer()
+              
+              Button(action: {
+                  viewModel.showPostRunQuestionnaire = false
+            
+              }) {
+                  Text("Finish Run")
+                      .font(.title3)
+                      .fontWeight(.semibold)
+                      .foregroundColor(.white)
+                      .frame(maxWidth: .infinity)
+                      .padding()
+                      .background(Color.accentgreen)
+                      .cornerRadius(15)
+              }
+              .padding(.horizontal, 40)
+              .padding(.bottom, 40)
+          }
+          .navigationTitle("Post-Run Check")
+          .navigationBarTitleDisplayMode(.inline)
+          .toolbar {
+              ToolbarItem(placement: .navigationBarLeading) {
+                  Button("Cancel") {
+                    viewModel.showPostRunQuestionnaire = false
+                  }
+              }
+          }
+      }
+  }
     
     // MARK: - Workout Summary View
     private var workoutSummaryView: some View {
@@ -331,76 +402,7 @@ struct RunningMainView: View {
         }
     }
     
-    // MARK: - Workout View
-//    private var workoutView: some View {
-//        VStack(spacing: 30) {
-//            // Stats Grid
-//            VStack(spacing: 20) {
-//                HStack(spacing: 20) {
-//                    StatCard(
-//                        title: "Distance",
-//                        value: String(format: "%.2f", WorkoutManager.shared.distance / 1000),
-//                        unit: "km",
-//                        icon: "location.fill"
-//                    )
-//                    
-//                    StatCard(
-//                        title: "Duration",
-//                        value: formatTime(WorkoutManager.shared.duration),
-//                        unit: "",
-//                        icon: "clock.fill"
-//                    )
-//                }
-//                
-//                HStack(spacing: 20) {
-//                    StatCard(
-//                        title: "Pace",
-//                        value: String(format: "%.1f", WorkoutManager.shared.pace),
-//                        unit: "min/km",
-//                        icon: "speedometer"
-//                    )
-//                    
-//                    StatCard(
-//                        title: "Calories",
-//                        value: String(format: "%.0f", WorkoutManager.shared.calories),
-//                        unit: "kcal",
-//                        icon: "flame.fill"
-//                    )
-//                }
-//            }
-//            
-//            Spacer()
-//            
-//            // Control Buttons
-//            HStack(spacing: 30) {
-//                if WorkoutManager.shared.isPaused {
-//                    Button(action: {
-//                      WorkoutManager.shared.resumeWorkout()
-//                    }) {
-//                        Image(systemName: "play.circle.fill")
-//                            .font(.system(size: 70))
-//                            .foregroundColor(.green)
-//                    }
-//                } else {
-//                    Button(action: {
-//                      WorkoutManager.shared.pauseWorkout()
-//                    }) {
-//                        Image(systemName: "pause.circle.fill")
-//                            .font(.system(size: 70))
-//                            .foregroundColor(.yellow)
-//                    }
-//                }
-//                
-//                Button(action: {
-//                  viewModel.showStopConfirmation = true
-//                }) {
-//                    Image(systemName: "stop.circle.fill")
-//                        .font(.system(size: 70))
-//                        .foregroundColor(.red)
-//                }
-//            }
-//        }
-//    }
+
     
     // MARK: - Helper Functions
     private func authorize() {
@@ -431,6 +433,17 @@ struct RunningMainView: View {
         default: return ""
         }
     }
+  
+  
+  private func rpeDescription(for level: Int) -> String {
+      switch level {
+      case 1...3: return "Felt like I was taking it easy today!"
+      case 4...6: return "Felt like I was neither pushing nor going easy!"
+      case 7...8: return "Felt good about my effort today!"
+      case 9...10: return "Felt like I was sprinting and going hard the entire time today!"
+      default: return ""
+      }
+  }
 }
 
 // MARK: - Summary Row Component

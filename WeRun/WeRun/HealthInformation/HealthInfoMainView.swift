@@ -23,17 +23,14 @@ struct HealthInfoMainView: View {
         loadingView
       case .loaded:
           content
-            .onAppear(){
-              Task{
-                print("onAppear")
-                await viewModel.fetchMenstrualData()
-              }
-            }
-            .navigationDestination(isPresented: $viewModel.showSubmissionSheet)
-          {
+            .navigationDestination(isPresented: $viewModel.showSubmissionSheet){
             SubmitData(viewModel: viewModel)
               .background(Color.gray.opacity(0.05))
           }
+            .navigationDestination(isPresented: $viewModel.showDailyCheckInSheet){
+              DailyCheckInView()//viewModel: viewModel
+                .background(Color.gray.opacity(0.05))
+            }
         
        
       case .error:
@@ -69,6 +66,8 @@ struct HealthInfoMainView: View {
     ScrollView {
       InfoBox
         .padding(.bottom, 8)
+      CheckInBox
+        .padding(.bottom, 8)
       ForEach(viewModel.menstrualData , id: \.self){ data in
         dataCell(dateString: viewModel.DateToDisplay(startDate: data.startDate, endDate: data.endDate),length: data.lengthInDays)
           .padding(.horizontal, 8)
@@ -79,7 +78,7 @@ struct HealthInfoMainView: View {
   @ViewBuilder var InfoBox: some View {
     let colour: InfoBoxColour = .red
         VStack(alignment: .center, spacing: 8){
-          Text("Submit Todays Information")
+          Text("Submit Todays Menstration Symptoms")
             .foregroundStyle(colour.textColor)
             .padding(.top, 8)
             .font(.title3)
@@ -87,10 +86,44 @@ struct HealthInfoMainView: View {
           Text("This allows us to keep our advice and analysis up to date")
             .padding(12)
             .foregroundStyle(colour.textColor)
+            .multilineTextAlignment(.center)
+
           
           Button("Submit"){
             print("button pressed")
             viewModel.showSubmissionSheet.toggle()
+          }
+          .tint(.backgroundGrey)
+          .bold()
+          .frame(maxWidth: .infinity)
+          .padding(12)
+          .background(colour.textColor)
+          .cornerRadius(48)
+          .padding(12)
+        }
+        .frame(maxWidth: .infinity)
+        .background(colour.backgroundColour)
+        .cornerRadius(12)
+        .padding(.horizontal, 16)
+
+      }
+  
+  @ViewBuilder var CheckInBox: some View {
+    let colour: InfoBoxColour = .purple
+        VStack(alignment: .center, spacing: 8){
+          Text("Update your Trackable items")
+            .foregroundStyle(colour.textColor)
+            .padding(.top, 8)
+            .font(.title3)
+            .bold()
+          Text("This allows us to keep our advice and analysis up to date")
+            .padding(12)
+            .foregroundStyle(colour.textColor)
+            .multilineTextAlignment(.center)
+          
+          Button("Submit"){
+            print("button pressed")
+            viewModel.showDailyCheckInSheet.toggle()
           }
           .tint(.backgroundGrey)
           .bold()

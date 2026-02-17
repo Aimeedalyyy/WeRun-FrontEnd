@@ -24,6 +24,7 @@ class HealthInfoViewModel: ObservableObject {
   @Published var errorMessage: String?
   
   @Published var showSubmissionSheet: Bool = false
+  @Published var showDailyCheckInSheet: Bool = false
   @Published var showErrorAlert: Bool = false
   
   var commonSymptoms: [String] = Symptoms.allCases.map(\.displayName)

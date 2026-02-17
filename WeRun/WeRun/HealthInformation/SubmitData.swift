@@ -89,29 +89,7 @@ struct SubmitData: View {
           }
       }
       .padding()
-      
-//      // Motivation level section
-//      Text("How motivated did you feel today?")
-//          .font(.subheadline)
-//          .fontWeight(.bold)
-//          .foregroundColor(.accentRed)
-//
-//      VStack {
-//          Slider(
-//              value: $motivation,
-//              in: 0...10,
-//              onEditingChanged: { editing in
-//                  isEditingMotivation = editing
-//              }
-//          )
-//          .tint(.accentRed)
-//          .padding(.horizontal, 24)
-//
-//          Text("Motivation: \(Int(motivation))")
-//              .foregroundColor(isEditingMotivation ? .accentRed : .primary)
-//              .font(.headline)
-//      }
-//      .padding(.bottom, 24)
+    
       
       Button("Submit"){
         Task
@@ -152,6 +130,7 @@ struct SubmitData: View {
 
 struct StyledPicker: View {
     @Binding var flow: FlowType
+  
       
     init(flow: Binding<FlowType>) {
       self._flow = flow

@@ -195,4 +195,17 @@ class APIManager {
       
       return response
   }
+  
+  
+  func logTrackable(name: String, valueNumeric: Double) async throws -> LogTrackableResponse {
+      let body = try JSONEncoder().encode(
+        LogTrackableRequest(name: name, value_numeric: valueNumeric, value_text: "FROM APP")
+      )
+      
+      return try await makeRequest(
+          endpoint: "api/log_trackables/",
+          method: "POST",
+          body: body
+      )
+  }
 }

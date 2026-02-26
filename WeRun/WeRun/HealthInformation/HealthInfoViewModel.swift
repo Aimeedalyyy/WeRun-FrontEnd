@@ -67,12 +67,7 @@ class HealthInfoViewModel: ObservableObject {
     
   }
   
-  func getCurrentMenstrualPhase() -> String {
-    
-    
-    
-    return "You are currently on your period"
-  }
+
   
 
   
@@ -118,12 +113,26 @@ class HealthInfoViewModel: ObservableObject {
     }
   }
   
-  func sendSymptoms(symptoms: [Symptoms]) async {
-    for symptom in symptoms {
-      
-      print(symptom)
-      HealthKitManager.shared.saveSymptom(symptom)
-    }
+//  func sendSymptoms(symptoms: [Symptoms]) async {
+//    for symptom in symptoms {
+//      
+//      print(symptom)
+//      HealthKitManager.shared.saveSymptom(symptom)
+//    }
+//  }
+  
+  func sendTrackables(_ items: [TrackableItem]) async {
+      for item in items {
+          do {
+              let response = try await APIManager.shared.logTrackable(
+                  name: item.name,
+                  valueNumeric: item.valueNumeric
+              )
+              print("✅ Logged \(item.name):", response)
+          } catch {
+              print("❌ Failed \(item.name):", error)
+          }
+      }
   }
 }
 

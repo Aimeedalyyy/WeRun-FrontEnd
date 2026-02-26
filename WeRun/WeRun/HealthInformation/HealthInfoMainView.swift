@@ -28,7 +28,7 @@ struct HealthInfoMainView: View {
               .background(Color.gray.opacity(0.05))
           }
             .navigationDestination(isPresented: $viewModel.showDailyCheckInSheet){
-              DailyCheckInView()//viewModel: viewModel
+              DailyCheckInView(viewModel: viewModel)
                 .background(Color.gray.opacity(0.05))
             }
         

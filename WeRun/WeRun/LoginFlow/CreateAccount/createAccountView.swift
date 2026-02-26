@@ -21,13 +21,8 @@ struct CreateAccountView: View {
         "Muscle Soreness"
     ]
 
-    private let symptoms = [
-        "Cramps",
-        "Headaches",
-        "Bloating",
-        "Fatigue",
-        "Mood Changes"
-    ]
+  
+  var symptoms: [String] = Symptoms.allCases.map(\.displayName)
 
     var body: some View {
         ScrollView {

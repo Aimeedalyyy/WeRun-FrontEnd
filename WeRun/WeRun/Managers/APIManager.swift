@@ -176,14 +176,7 @@ class APIManager {
       }
   
   
-  func register(username: String, email: String, password: String, affiliatedUserId: Int? = nil) async throws -> RegisterResponse {
-      let registerBody = RegisterRequest(
-          username: username,
-          email: email,
-          password: password,
-          affiliated_user: affiliatedUserId
-      )
-      
+  func register(registerBody: RegisterRequest) async throws -> RegisterResponse {
       let bodyData = try JSONEncoder().encode(registerBody)
       
       // Call the /api/register/ endpoint

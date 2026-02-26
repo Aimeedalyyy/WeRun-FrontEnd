@@ -8,18 +8,23 @@
 
 import SwiftUI
 
+enum CreateAccountTrackables: String, CaseIterable {
+    case hydration = "Hydration"
+    case sleep = "Sleep"
+    case restingHeartRate = "Resting Heart Rate"
+    case energyLevels = "Energy Levels"
+    case muscleSoreness = "Muscle Soreness"
+    case bodyTemperature = "Body Temperature"
+    case anxiety = "Anxiety"
+    case sweatLevels = "Sweat Levels"
+}
+
 struct CreateAccountView: View {
     @StateObject var viewModel: AuthViewModel
-    @State private var selectedTrackables: Set<String> = []
-    @State private var selectedSymptoms: Set<String> = []
+//    @State var createAccountViewModel: CreateAccountViewModel = CreateAccountViewModel()
 
-    private let trackableItems = [
-        "Hydration",
-        "Sleep",
-        "Resting Heart Rate",
-        "Energy Levels",
-        "Muscle Soreness"
-    ]
+
+    let trackableNames = CreateAccountTrackables.allCases.map { $0.rawValue }
 
   
   var symptoms: [String] = Symptoms.allCases.map(\.displayName)
@@ -60,7 +65,7 @@ struct CreateAccountView: View {
                       Spacer()
 
                       Button("Clear all") {
-                          selectedTrackables.removeAll()
+                        viewModel.trackableSet.removeAll()
                       }
                       .font(.caption.weight(.semibold))
                       .foregroundColor(.accentPurple)
@@ -71,8 +76,7 @@ struct CreateAccountView: View {
                   }
 
                   FlexibleSelectionGrid(
-                      items: trackableItems,
-                      selections: $selectedTrackables
+                      selections: $viewModel.trackableSet
                   )
               }
 
@@ -87,7 +91,7 @@ struct CreateAccountView: View {
                       Spacer()
 
                       Button("Clear all") {
-                          selectedSymptoms.removeAll()
+                        viewModel.selectedSymptoms.removeAll()
                       }
                       .font(.caption.weight(.semibold))
                       .foregroundColor(.accentPurple)
@@ -97,9 +101,9 @@ struct CreateAccountView: View {
                       .cornerRadius(8)
                   }
 
-                  FlexibleSelectionGrid(
-                      items: symptoms,
-                      selections: $selectedSymptoms
+                FlexibleSymptomSelectionGrid(
+                    items: symptoms,
+                    selections: $viewModel.selectedSymptoms
                   )
               }
 
@@ -117,7 +121,7 @@ struct CreateAccountView: View {
                       .cornerRadius(14)
                       .fontWeight(.semibold)
               }
-//              .disabled(viewModel.isLoading || vniewModel.username.isEmpty || viewModel.password.isEmpty)
+
 
               Spacer(minLength: 20)
 
@@ -137,8 +141,15 @@ struct CreateAccountView: View {
 }
 
 struct FlexibleSelectionGrid: View {
-    let items: [String]
-    @Binding var selections: Set<String>
+  let items: [TrackableItem] = CreateAccountTrackables.allCases.map { trackable in
+      TrackableItem(
+          name: trackable.rawValue,
+          value_numeric: nil,
+          value_text: nil
+      )
+  }
+
+    @Binding var selections: Set<TrackableItem>
 
     private let columns = [
         GridItem(.flexible()),
@@ -149,9 +160,9 @@ struct FlexibleSelectionGrid: View {
         LazyVGrid(columns: columns, spacing: 12) {
             ForEach(items, id: \.self) { item in
                 Button {
-                    toggle(item)
+                  toggle(item)
                 } label: {
-                    Text(item)
+                  Text(item.name)
                         .font(.subheadline)
                         .frame(maxWidth: .infinity, minHeight: 44)
                         .background(
@@ -166,8 +177,47 @@ struct FlexibleSelectionGrid: View {
         }
     }
 
-    private func toggle(_ item: String) {
-        if selections.contains(item) {
+  private func toggle(_ item: TrackableItem) {
+      if selections.contains(item) {
+            selections.remove(item)
+        } else {
+            selections.insert(item)
+        }
+    }
+}
+
+struct FlexibleSymptomSelectionGrid: View {
+    let items: [String]
+    @Binding var selections: Set<String>
+
+    private let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: 12) {
+            ForEach(items, id: \.self) { item in
+                Button {
+                  toggle(item)
+                } label: {
+                  Text(item)
+                        .font(.subheadline)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(selections.contains(item)
+                                      ? Color.accentPurple
+                                      : Color.backgroundGrey.opacity(0.2))
+                        )
+                        .foregroundColor(selections.contains(item) ? .white : .primary)
+                }
+            }
+        }
+    }
+
+  private func toggle(_ item: String) {
+      if selections.contains(item) {
             selections.remove(item)
         } else {
             selections.insert(item)

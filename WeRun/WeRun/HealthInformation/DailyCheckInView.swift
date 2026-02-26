@@ -12,9 +12,10 @@ enum HydrationUnit: String, CaseIterable {
     case cups = "Cups"
 }
 
-struct TrackableItem {
+struct TrackableItem: Hashable {
     let name: String
-    let valueNumeric: Double
+    let value_numeric: Double?
+    let value_text: String?
 }
 
   
@@ -295,7 +296,8 @@ struct DailyCheckInView: View {
           items.append(
               TrackableItem(
                   name: "Hydration",
-                  valueNumeric: valueInLitres
+                  value_numeric: valueInLitres,
+                  value_text: nil
               )
           )
       }
@@ -305,7 +307,8 @@ struct DailyCheckInView: View {
           items.append(
               TrackableItem(
                   name: "Resting Heart Rate",
-                  valueNumeric: bpm
+                  value_numeric: bpm,
+                  value_text: nil
               )
           )
       }
@@ -315,7 +318,8 @@ struct DailyCheckInView: View {
           items.append(
               TrackableItem(
                   name: "Sleep",
-                  valueNumeric: sleepHours
+                  value_numeric: sleepHours,
+                  value_text: nil
               )
           )
       }
@@ -325,7 +329,8 @@ struct DailyCheckInView: View {
           items.append(
               TrackableItem(
                   name: "Energy Level",
-                  valueNumeric: Double(energyLevel.rawValue)
+                  value_numeric: Double(energyLevel.rawValue),
+                  value_text: nil
               )
           )
       }
@@ -335,7 +340,8 @@ struct DailyCheckInView: View {
           items.append(
               TrackableItem(
                   name: "Urine Colour",
-                  valueNumeric: Double(urineColour.rawValue)
+                  value_numeric: Double(urineColour.rawValue),
+                  value_text: nil
               )
           )
       }
@@ -345,7 +351,8 @@ struct DailyCheckInView: View {
           items.append(
               TrackableItem(
                   name: "Muscle Soreness",
-                  valueNumeric: Double(muscleSoreness.rawValue)
+                  value_numeric: Double(muscleSoreness.rawValue),
+                  value_text: nil
               )
           )
       }

@@ -126,7 +126,7 @@ class HealthInfoViewModel: ObservableObject {
           do {
               let response = try await APIManager.shared.logTrackable(
                   name: item.name,
-                  valueNumeric: item.valueNumeric
+                  valueNumeric: item.value_numeric ?? 0.0
               )
               print("✅ Logged \(item.name):", response)
           } catch {

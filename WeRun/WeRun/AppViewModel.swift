@@ -21,7 +21,7 @@ class AppViewModel: ObservableObject {
       return
     }
     do {
-      let test = try await APIManager.shared.testAPI(lastPeriodStart: "2025-11-20T00:00:00Z")
+      let test = try await APIManager.shared.testAPI(lastPeriodStart: "2026-02-19T00:00:00Z")
       DispatchQueue.main.async {
         self.tests = test
         self.isLoading = false

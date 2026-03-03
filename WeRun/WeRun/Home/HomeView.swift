@@ -13,18 +13,20 @@ struct HomeView: View {
   @StateObject private var healthViewModel = HealthInfoViewModel()
   @StateObject private var runningViewModel = RunningViewModel()
   @StateObject private var analysisViewModel = AnalysisViewModel()
+  @StateObject private var authViewModel = AuthViewModel()
   
   var body: some View {
+    
       TabView {
         Tab("", systemImage: "house.fill") {
             VStack {
               if viewModel.isLoading {
                 ProgressView("Loading...")
               } else if let test = viewModel.tests {
-                Text("You will able to see posts from others soon...")
-
+                let phase = CyclePhase.from(test.calculated_phase)
                 ScrollView{
-                  PostCard(phase: test.calculated_phase, colour: viewModel.getPhaseColor(for: test.calculated_phase))
+                  MenstrualCalendarScreen(menstrualSample: healthViewModel.menstrualData, today: CycleDay(dayofCycle: 1, date: Date(), phase: phase, workoutType: ""), dayOfCycle: test.cycle_day)
+                  
                 }
                 .padding(.horizontal, 8)
               } else {
@@ -57,7 +59,7 @@ struct HomeView: View {
           
         }
         Tab("", systemImage: "person.crop.circle.fill") {
-            UserSettingsView()
+          UserSettingsView(viewModel: authViewModel)
               .background(Color.gray.opacity(0.05))
         }
       }

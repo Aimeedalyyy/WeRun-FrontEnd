@@ -136,6 +136,10 @@ class APIManager {
   func getInsights(lastPeriodStart: String) async throws -> SyncPeriodResponse {
       return try await makeRequest(endpoint: "api/user-insights/", method: "GET")
   }
+  
+  func getTrackables() async throws -> userTrackableResponse {
+      return try await makeRequest(endpoint: "api/user_tracking/", method: "GET")
+  }
     
     // Log a run
   func logRun(run: RunEntryRequest) async throws -> [String: Any] {

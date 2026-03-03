@@ -54,13 +54,13 @@ final class AuthViewModel: ObservableObject {
         Array(selectedSymptoms)
     }
     
+    
   
     
     do {
       let requestBody = RegisterRequest(username: username, email: email, password: password, affiliated_user: nil,last_period_sync: nil, last_period_start: nil, last_period_end: nil, trackables: trackablesRequest, symptoms: symptomsArray)
       
       print("🐞🐞 Request Body:\(requestBody)🐞🐞")
-      
       let user = try await APIManager.shared.register(registerBody: requestBody)
                                                     
       
@@ -69,6 +69,16 @@ final class AuthViewModel: ObservableObject {
       print("Username:", user.username)
     } catch {
       print("Registration failed:", error.localizedDescription)
+    }
+  }
+  
+  func testGetTrackables() async{
+    do
+    {
+      let response = try await APIManager.shared.getTrackables()
+      print(response)
+    } catch{
+      print("getting trackables failed:", error.localizedDescription)
     }
   }
 

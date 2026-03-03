@@ -192,9 +192,9 @@ class HealthKitManager: ObservableObject{
       
       healthStore.save(sample) { success, error in
           if success {
-              print("Saved menstrual flow sample")
+              print("🐞🐞🐞 Saved menstrual flow sample")
           } else {
-              print("Error: \(String(describing: error))")
+              print("🐞🐞🐞 Error: \(String(describing: error))")
           }
       }
   }

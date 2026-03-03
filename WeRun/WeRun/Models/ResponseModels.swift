@@ -33,7 +33,11 @@ struct TestResponse: Codable {
     let test_number: Int
     let current_date: String
     let calculated_phase: String
+    let cycle_day: Int
+    let days_until_next_phase: Int
+  
 }
+
 
 // MARK: - Run Entry Request
 
@@ -83,3 +87,9 @@ struct LogTrackableResponse: Codable {
     let value_numeric: String?
     let value_text: String?
 }
+
+struct userTrackableResponse: Codable {
+  let trackables: [String]
+  let symptoms: [String]
+}
+

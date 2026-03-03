@@ -17,7 +17,7 @@ let isoFormatter = ISO8601DateFormatter()
 class HealthInfoViewModel: ObservableObject {
   
   // 1. In the HealthDataViewModel we define all the properties to store the latest values for step count, heart rate, and active energy burned.
-  @Published var menstrualData: [MenstrualCycle] = []
+  @Published var menstrualData: [MenstrualCycle] = [] //fetched from the health kit 
   var cramps: HKQuantitySample?
   @Published var isAuthorized: Bool = false
   @Published var state: LoadState = .idle
@@ -35,23 +35,6 @@ class HealthInfoViewModel: ObservableObject {
   }
   
   
-  let mockCycles: [MenstrualCycle] = [
-    MenstrualCycle(
-        startDate: isoFormatter.date(from: "2025-06-13T23:00:00+0000")!,
-        endDate: isoFormatter.date(from: "2025-06-16T23:00:00+0000")!,
-        lengthInDays: 4
-    ),
-      MenstrualCycle(
-          startDate: isoFormatter.date(from: "2025-07-12T23:00:00+0000")!,
-          endDate:   isoFormatter.date(from: "2025-07-15T00:00:00+0100")!, // approximate end date from flowSamples
-          lengthInDays: 2
-      ),
-      MenstrualCycle(
-          startDate: isoFormatter.date(from: "2025-08-13T23:00:00+0000")!,
-          endDate: isoFormatter.date(from: "2025-08-16T23:00:00+0000")!,
-          lengthInDays: 3
-      )
-  ]
   
   func DateToDisplay(startDate: Date, endDate: Date) -> String {
     if DateHelpers.isToday(endDate) {
@@ -68,9 +51,6 @@ class HealthInfoViewModel: ObservableObject {
   }
   
 
-  
-
-  
   // 2. When the view model is initialized, it immediately attempts to request HealthKit authorization using the requestAuthorization() method. If the permission is granted, it proceeds to fetch the health data.
   func requestAuthorization() async {
     do {
@@ -93,7 +73,7 @@ class HealthInfoViewModel: ObservableObject {
     if self.isAuthorized {
       if let sample = try? await HealthKitManager.shared.fetchLastNCycles(12){ //TODO: put that into user options
         self.menstrualData = sample.reversed()
-        print(sample)
+        print("🐞🐞Fetched Menstrual Samples! \n  \(sample)")
         return
       }
 

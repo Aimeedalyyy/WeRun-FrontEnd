@@ -69,7 +69,7 @@ struct HealthInfoMainView: View {
       CheckInBox
         .padding(.bottom, 8)
       ForEach(viewModel.menstrualData , id: \.self){ data in
-        dataCell(dateString: viewModel.DateToDisplay(startDate: data.startDate, endDate: data.endDate),length: data.lengthInDays)
+        dataCell(dateString: viewModel.DateToDisplay(startDate: data.startDate, endDate: data.endDate),length: data.lengthInDays + 1 )
           .padding(.horizontal, 8)
       }
     }

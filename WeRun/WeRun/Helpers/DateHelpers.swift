@@ -20,5 +20,11 @@ class DateHelpers {
     return Calendar.current.isDateInToday(date)
   }
   
+  static func formatDateToDayMonth(_ date: Date) -> String {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "dd MMMM"
+    return dateFormatter.string(from: date)
+  }
+  
   
 }

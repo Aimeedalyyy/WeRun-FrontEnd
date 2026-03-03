@@ -23,6 +23,7 @@ struct UserSettingsView: View {
 
   
     @EnvironmentObject var authState: AppAuthState
+    @State var viewModel: AuthViewModel
     @State private var selectedTrackables: Set<TrackableItem> = []
     @State private var selectedSymptoms: Set<String> = []
     var symptoms: [String] = Symptoms.allCases.map(\.displayName)
@@ -33,6 +34,21 @@ struct UserSettingsView: View {
           .bold()
           .foregroundColor(.accentPurple)
       Divider()
+      
+      Button("Test Get Trackables "){
+        Task {
+          await viewModel.testGetTrackables()
+        }
+      }
+      .tint(.backgroundGrey)
+      .bold()
+      .frame(maxWidth: .infinity)
+      .padding(12)
+      .background(.accentgreen)
+      .cornerRadius(48)
+      .padding(12)
+      
+      
       ScrollView{
         VStack(alignment: .leading, spacing: 12) {
 
@@ -195,5 +211,5 @@ struct UserSettingsView: View {
 }
 
 #Preview {
-    UserSettingsView()
+  UserSettingsView(viewModel: AuthViewModel())
 }

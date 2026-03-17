@@ -12,12 +12,13 @@ import HealthKitUI
 struct HealthInfoMainView: View {
   // 1.
   @ObservedObject var viewModel: HealthInfoViewModel
+  @ObservedObject var appViewModel: AppViewModel
 
   
   
   // 2.
   var body: some View {
-    VStack{
+    ScrollView{
       switch viewModel.state {
       case .loading, .idle:
         loadingView
@@ -43,12 +44,17 @@ struct HealthInfoMainView: View {
         }
       }
     }
+    .refreshable {
+      //await viewModel.fetchMenstrualData()
+      await viewModel.getUserInfo()
+    }
     .onAppear(){
       Task{
-        print("onAppear")
-        await viewModel.fetchMenstrualData()
+        //await viewModel.fetchMenstrualData()
+        await viewModel.getUserInfo()
       }
     }
+
     
   }
   
@@ -68,11 +74,13 @@ struct HealthInfoMainView: View {
         .padding(.bottom, 8)
       CheckInBox
         .padding(.bottom, 8)
-      ForEach(viewModel.menstrualData , id: \.self){ data in
-        dataCell(dateString: viewModel.DateToDisplay(startDate: data.startDate, endDate: data.endDate),length: data.lengthInDays + 1 )
+      ForEach(viewModel.groupedTimeline, id: \.date) { group in
+          dataCell(
+              date: group.date,
+              entries: group.items
+          )
           .padding(.horizontal, 8)
-      }
-    }
+      }    }
   }
   
   @ViewBuilder var InfoBox: some View {
@@ -90,7 +98,6 @@ struct HealthInfoMainView: View {
 
           
           Button("Submit"){
-            print("button pressed")
             viewModel.showSubmissionSheet.toggle()
           }
           .tint(.backgroundGrey)
@@ -122,7 +129,6 @@ struct HealthInfoMainView: View {
             .multilineTextAlignment(.center)
           
           Button("Submit"){
-            print("button pressed")
             viewModel.showDailyCheckInSheet.toggle()
           }
           .tint(.backgroundGrey)
@@ -146,26 +152,99 @@ struct HealthInfoMainView: View {
 
 
 struct dataCell: View {
-  let dateString: String
-  let length: Int
+    let date: Date
+    let entries: [TimelineEntry]
 
-  var body: some View {
-    HStack{
-      Text(dateString)
-      Spacer()
-      Text("\(String(length)) days")
+    var body: some View {
+      VStack(alignment: .leading, spacing: 8) {
+        
+        Text(formatDate(date))
+          .font(.headline)
+          .padding(.bottom, 4)
+        
+        LazyVGrid(
+          columns: [GridItem(.adaptive(minimum: 120), spacing: 8)],
+          spacing: 8
+        ) {
+          ForEach(entries, id: \.self) { entry in
+            capsule(entry: entry)
+          }
+        }
+      }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
     }
-    .padding(.horizontal)
-    .padding(.vertical, 24)
-    .background(.lightRed)
-    .cornerRadius(10)
 
+    func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: date)
+    }
+  
+  @ViewBuilder
+  func capsule(entry: TimelineEntry) -> some View {
+      let text = buildText(entry)
+
+      Text(text)
+          .foregroundStyle(textColour(entry))
+          .padding(.horizontal, 12)
+          .padding(.vertical, 6)
+          .background(backgroundColour(entry))
+          .foregroundColor(.white)
+          .cornerRadius(20)
+  }
+  
+  func buildText(_ entry: TimelineEntry) -> String {
+      if entry.type == .symptom {
+          return entry.name
+      }
+
+      var parts: [String] = [entry.name]
+
+      if let value = entry.value {
+          if let unit = entry.unit {
+              parts.append("\(value) \(unit)")
+          } else {
+              parts.append(value)
+          }
+      }
+
+      if let phase = entry.phase {
+          parts.append(capitalize(phase))
+      }
+
+      return parts.joined(separator: " • ")
+  }
+  
+  func backgroundColour(_ entry: TimelineEntry) -> Color {
+      switch entry.type {
+      case .trackable:
+        return .backroundPurple
+      case .symptom:
+        return .lightRed
+      }
+  }
+  
+  func textColour(_ entry: TimelineEntry) -> Color {
+      switch entry.type {
+      case .trackable:
+        return .accentPurple
+      case .symptom:
+        return .accentRed
+      }
+  }
+  
+  func capitalize(_ string: String) -> String {
+      string.prefix(1).uppercased() + string.dropFirst()
   }
 }
 
 
 #Preview {
-  HealthInfoMainView(viewModel: HealthInfoViewModel())
+  
+  //dataCell(dateString: "date", length: 4, dataType: .cycle)
+  //HealthInfoMainView(viewModel: HealthInfoViewModel(), appViewModel: AppViewModel())
 }
 
 

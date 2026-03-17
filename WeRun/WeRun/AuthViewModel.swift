@@ -71,7 +71,7 @@ final class AuthViewModel: ObservableObject {
       print("Registration failed:", error.localizedDescription)
     }
   }
-  
+  //TODO: Get rid of test
   func testGetTrackables() async{
     do
     {
@@ -81,49 +81,62 @@ final class AuthViewModel: ObservableObject {
       print("getting trackables failed:", error.localizedDescription)
     }
   }
-
-
-    func authenticate() async {
-        isLoading = true
-        error = nil
-
-        do {
-            switch mode {
-
-            case .login:
-                let tokens = try await APIManager.shared.login(
-                    username: username,
-                    password: password
-                )
-
-                AuthManager.shared.storeTokens(
-                    access: tokens.access,
-                    refresh: tokens.refresh
-                )
-
-            case .register:
-                _ = try await APIManager.shared.register(
-                  registerBody: RegisterRequest(username: username, email: email, password: password, affiliated_user: nil, last_period_sync: nil, last_period_start: nil, last_period_end: nil, trackables: trackables, symptoms: symptoms)
-                )
-
-                let tokens = try await APIManager.shared.login(
-                    username: username,
-                    password: password
-                )
-
-                AuthManager.shared.storeTokens(
-                    access: tokens.access,
-                    refresh: tokens.refresh
-                )
-            }
-
-            isLoggedIn = true
-
-        } catch {
-            self.error = error.localizedDescription
-            print("Auth failed:", error)
-        }
-
-        isLoading = false
+  
+  
+  func testGetUserInfo() async{
+    do
+    {
+      let response = try await APIManager.shared.getUserInfo()
+      print(response)
+    } catch{
+      print("getting user info failed:", error)
     }
+  }
+
+
+
+  func authenticate() async {
+      isLoading = true
+      error = nil
+
+      do {
+          switch mode {
+
+          case .login:
+              // APIManager.login() already calls storeTokens internally — remove it here
+              _ = try await APIManager.shared.login(
+                  username: username,
+                  password: password
+              )
+
+          case .register:
+              _ = try await APIManager.shared.register(
+                  registerBody: RegisterRequest(
+                      username: username,
+                      email: email,
+                      password: password,
+                      affiliated_user: nil,
+                      last_period_sync: nil,
+                      last_period_start: nil,
+                      last_period_end: nil,
+                      trackables: trackables,
+                      symptoms: symptoms
+                  )
+              )
+              // APIManager.login() already calls storeTokens internally — remove it here too
+              _ = try await APIManager.shared.login(
+                  username: username,
+                  password: password
+              )
+          }
+
+          isLoggedIn = true
+
+      } catch {
+          self.error = error.localizedDescription
+          print("Auth failed:", error)
+      }
+
+      isLoading = false
+  }
 }

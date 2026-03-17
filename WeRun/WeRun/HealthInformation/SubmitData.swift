@@ -47,68 +47,97 @@ struct SubmitData: View {
   @State private var selectedItems: Set<Symptoms> = []
   @State private var motivation = 10.0
   @State private var isEditingMotivation = false
+  @State private var showSuccessToast = false
   let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 3)
   
   
   var body: some View {
-    ScrollView{
-      Text("Todays Data!")
-        .font(.title)
-        .fontWeight(.bold)
-        .foregroundColor(.accentRed)
-        .padding(.horizontal, 32)
-        .multilineTextAlignment(.center)
-      
-      Text("How heavy was your flow today?")
-        .font(.subheadline)
-        .fontWeight(.bold)
-        .foregroundColor(.accentRed)
-        .padding(.top, 8)
-      StyledPicker(flow: $flow)
-        .padding(.horizontal, 20)
-        .tint(.accentRed)
-        .pickerStyle(.segmented)
-        .padding(.horizontal, 12)
-        .padding(.bottom, 12)
-      
-      Text("Did you have any other associated symptoms?")
-        .font(.subheadline)
-        .fontWeight(.bold)
-        .foregroundColor(.accentRed)
-      
-      LazyVGrid(columns: columns, spacing: 16) {
-        ForEach(Symptoms.allCases, id: \.self) { item in
-              Button(action: {
-                  toggleSelection(for: item)
-              }) {
-                Text(item.displayName)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity, minHeight: 60)
-              }
-              .buttonStyle(SelectableButtonStyle(isSelected: selectedItems.contains(item)))
+    ZStack{
+      ScrollView{
+        Text("Todays Data!")
+          .font(.title)
+          .fontWeight(.bold)
+          .foregroundColor(.accentRed)
+          .padding(.horizontal, 32)
+          .multilineTextAlignment(.center)
+        
+        Text("How heavy was your flow today?")
+          .font(.subheadline)
+          .fontWeight(.bold)
+          .foregroundColor(.accentRed)
+          .padding(.top, 8)
+        StyledPicker(flow: $flow)
+          .padding(.horizontal, 20)
+          .tint(.accentRed)
+          .pickerStyle(.segmented)
+          .padding(.horizontal, 12)
+          .padding(.bottom, 12)
+        
+        Text("Did you have any other associated symptoms?")
+          .font(.subheadline)
+          .fontWeight(.bold)
+          .foregroundColor(.accentRed)
+        
+        LazyVGrid(columns: columns, spacing: 16) {
+          ForEach(Symptoms.allCases, id: \.self) { item in
+            Button(action: {
+              toggleSelection(for: item)
+            }) {
+              Text(item.displayName)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, minHeight: 60)
+            }
+            .buttonStyle(SelectableButtonStyle(isSelected: selectedItems.contains(item)))
           }
-      }
-      .padding()
-    
-      
-      Button("Submit"){
-        Task
-        {
-          print("flow: \(flow.intValue), date: \(Date())")
-          clearSelectedItems()
-          await viewModel.saveData(flow: flow.intValue, date: Date(), symptoms: Array(selectedItems))
-          
-          
         }
+        .padding()
+        
+        
+        Button("Submit"){
+          Task
+          {
+            print("🐞🩸flow: \(flow.intValue), date: \(Date()), symptoms: \(Array(selectedItems))")
+            await viewModel.saveData(flow: flow.intValue, date: Date(), symptoms: Array(selectedItems))
+            clearSelectedItems()
+            withAnimation {
+                showSuccessToast = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                withAnimation {
+                    showSuccessToast = false
+                }
+            }
+
+            
+            
+          }
+        }
+        .tint(.backgroundGrey)
+        .bold()
+        .frame(maxWidth: .infinity)
+        .padding(12)
+        .background(.accentRed)
+        .cornerRadius(48)
+        .padding(12)
+        .padding(.horizontal, 32)
       }
-      .tint(.backgroundGrey)
-      .bold()
-      .frame(maxWidth: .infinity)
-      .padding(12)
-      .background(.accentRed)
-      .cornerRadius(48)
-      .padding(12)
-      .padding(.horizontal, 32)
+    }
+    if showSuccessToast {
+        HStack(spacing: 12) {
+            Image(systemName: "checkmark.circle.fill")
+            .foregroundColor(.accentgreen)
+                .font(.title3)
+            Text("Todays Menstrual Symptoms submitted!")
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 14)
+        .background(Color.accentRed)
+        .cornerRadius(32)
+        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 4)
+        .padding(.bottom, 24)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
     }
   }
   

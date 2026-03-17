@@ -27,7 +27,7 @@ struct DailyCheckInView: View {
   @State private var restingHeartRate: String = ""
   @State private var sleepHours: Double = 0
   @State private var bodyTemperature: Double = 0
-  @State private var energyLevel: EnergyLevel? = nil
+  @State private var energyLevels: EnergyLevel? = nil
   @State private var urineColour: UrineColour? = nil
   @State private var muscleSoreness: MuscleSoreness? = nil
   @State private var sweatLevel: SweatLevel? = nil
@@ -41,6 +41,7 @@ struct DailyCheckInView: View {
   @State private var trackMuscleSoreness = true
   @State private var trackSweatLevels = true
   @State private var trackAnxiety = true
+  @State private var showSuccessToast = false
 
 
 
@@ -48,227 +49,246 @@ struct DailyCheckInView: View {
   
   
   var body: some View {
-    ScrollView{
-      Text("Daily Check In!")
-        .font(.title)
-        .fontWeight(.bold)
-        .foregroundColor(.accentPurple)
-        .padding(.horizontal, 32)
-        .multilineTextAlignment(.center)
-      
-      VStack(spacing: 20) {
-        // Hydration
-        VStack(alignment: .leading, spacing: 8) {
-
+    ZStack(alignment: .bottom) {
+      ScrollView{
+        Text("Daily Check In!")
+          .font(.title)
+          .fontWeight(.bold)
+          .foregroundColor(.accentPurple)
+          .padding(.horizontal, 32)
+          .multilineTextAlignment(.center)
+        
+        VStack(spacing: 20) {
+          // Hydration
+          VStack(alignment: .leading, spacing: 8) {
+            
             Toggle(isOn: $trackHydration) {
-                Text("Hydration")
-                    .font(.headline)
-                    .foregroundColor(.accentPurple)
+              Text("Hydration")
+                .font(.headline)
+                .foregroundColor(.accentPurple)
             }
             .tint(.accentPurple)
-
+            
             if trackHydration {
-                HStack {
-                    TextField("Amount", value: $hydrationAmount, format: .number)
-                        .keyboardType(.decimalPad)
-                        .padding()
-                        .background(.backgroundGrey.opacity(0.2))
-                        .cornerRadius(12)
-
-                    Picker("", selection: $hydrationUnit) {
-                        ForEach(HydrationUnit.allCases, id: \.self) {
-                            Text($0.rawValue)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 150)
+              HStack {
+                TextField("Amount", value: $hydrationAmount, format: .number)
+                  .keyboardType(.decimalPad)
+                  .padding()
+                  .background(.backgroundGrey.opacity(0.2))
+                  .cornerRadius(12)
+                
+                Picker("", selection: $hydrationUnit) {
+                  ForEach(HydrationUnit.allCases, id: \.self) {
+                    Text($0.rawValue)
+                  }
                 }
-                .transition(.opacity.combined(with: .slide))
+                .pickerStyle(.segmented)
+                .frame(width: 150)
+              }
+              .transition(.opacity.combined(with: .slide))
             }
-        }
-        Divider()
-  
-        // Resting Heart Rate
-        VStack(alignment: .leading, spacing: 8) {
-          Toggle(isOn: $trackHeartRate) {
+          }
+          Divider()
+          
+          // Resting Heart Rate
+          VStack(alignment: .leading, spacing: 8) {
+            Toggle(isOn: $trackHeartRate) {
               Text("Resting Heart Rate")
-                  .font(.headline)
-                  .foregroundColor(.accentPurple)
-          }
-          .tint(.accentPurple)
-          
-          if trackHeartRate{
-            TextField("BPM", text: $restingHeartRate)
-              .keyboardType(.numberPad)
-              .padding()
-              .background(.backgroundGrey.opacity(0.2))
-              .cornerRadius(12)
+                .font(.headline)
+                .foregroundColor(.accentPurple)
+            }
+            .tint(.accentPurple)
             
-            Text("Measure after sitting calmly for 5 minutes, then count beats for 30 seconds, and double it !")
-              .font(.caption)
-              .foregroundColor(.secondary)
+            if trackHeartRate{
+              TextField("BPM", text: $restingHeartRate)
+                .keyboardType(.numberPad)
+                .padding()
+                .background(.backgroundGrey.opacity(0.2))
+                .cornerRadius(12)
+              
+              Text("Measure after sitting calmly for 5 minutes, then count beats for 30 seconds, and double it !")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
           }
-        }
-        Divider()
-        
-        // Sleep
-        VStack(alignment: .leading, spacing: 8) {
-          Toggle(isOn: $trackSleep) {
+          Divider()
+          
+          // Sleep
+          VStack(alignment: .leading, spacing: 8) {
+            Toggle(isOn: $trackSleep) {
               Text("Sleep")
-                  .font(.headline)
-                  .foregroundColor(.accentPurple)
-          }
-          .tint(.accentPurple)
-          
-          if trackSleep{
-            TextField("Hours", value: $sleepHours, format: .number)
-              .keyboardType(.decimalPad)
-              .padding()
-              .background(.backgroundGrey.opacity(0.2))
-              .cornerRadius(12)
+                .font(.headline)
+                .foregroundColor(.accentPurple)
+            }
+            .tint(.accentPurple)
             
-            Text("Measured in Approximately Hours")
-              .font(.caption)
-              .foregroundColor(.secondary)
+            if trackSleep{
+              TextField("Hours", value: $sleepHours, format: .number)
+                .keyboardType(.decimalPad)
+                .padding()
+                .background(.backgroundGrey.opacity(0.2))
+                .cornerRadius(12)
+              
+              Text("Measured in Approximately Hours")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
           }
-        }
-        Divider()
-        
-        // Body Temperature
-        VStack(alignment: .leading, spacing: 8) {
-          Toggle(isOn: $trackBodyTemp) {
+          Divider()
+          
+          // Body Temperature
+          VStack(alignment: .leading, spacing: 8) {
+            Toggle(isOn: $trackBodyTemp) {
               Text("Body Temperature")
-                  .font(.headline)
-                  .foregroundColor(.accentPurple)
-          }
-          .tint(.accentPurple)
-          
-          if trackBodyTemp{
-            TextField("Body Temperature", value: $bodyTemperature, format: .number)
-              .keyboardType(.decimalPad)
-              .padding()
-              .background(.backgroundGrey.opacity(0.2))
-              .cornerRadius(12)
-          }
-        }
-        Divider()
-        
-      }
-      .padding(.horizontal, 32)
-      .padding(.top, 12)
-      VStack(spacing: 20) {
-        
-        VStack(alignment: .leading, spacing: 8) {
-          
-          Toggle("Energy Levels", isOn: $trackEnergyLevels)
-            .font(.headline)
-            .foregroundColor(.accentPurple)
+                .font(.headline)
+                .foregroundColor(.accentPurple)
+            }
             .tint(.accentPurple)
+            
+            if trackBodyTemp{
+              TextField("Body Temperature", value: $bodyTemperature, format: .number)
+                .keyboardType(.decimalPad)
+                .padding()
+                .background(.backgroundGrey.opacity(0.2))
+                .cornerRadius(12)
+            }
+          }
+          Divider()
           
-          if trackEnergyLevels {
-            HorizontalScaleSelector(
-              options: EnergyLevel.allCases.map { $0.label },
-              selectedIndex: Binding(
-                get: { energyLevel?.rawValue },
-                set: { energyLevel = $0.flatMap(EnergyLevel.init(rawValue:)) }
+        }
+        .padding(.horizontal, 32)
+        .padding(.top, 12)
+        VStack(spacing: 20) {
+          
+          VStack(alignment: .leading, spacing: 8) {
+            
+            Toggle("Energy Levels", isOn: $trackEnergyLevels)
+              .font(.headline)
+              .foregroundColor(.accentPurple)
+              .tint(.accentPurple)
+            
+            if trackEnergyLevels {
+              HorizontalScaleSelector(
+                options: EnergyLevel.allCases.map { $0.label },
+                selectedIndex: Binding(
+                  get: { energyLevels?.rawValue },
+                  set: { energyLevels = $0.flatMap(EnergyLevel.init(rawValue:)) }
+                )
               )
-            )
-            .transition(.opacity.combined(with: .slide))
+              .transition(.opacity.combined(with: .slide))
+            }
+          }
+          
+          VStack{
+            Toggle("Urine Colour", isOn: $trackUrineColour)
+              .font(.headline)
+              .foregroundColor(.accentPurple)
+              .tint(.accentPurple)
+            
+            if trackUrineColour{
+              HorizontalScaleSelector(
+                options: UrineColour.allCases.map { $0.label },
+                selectedIndex: Binding(
+                  get: { urineColour?.rawValue },
+                  set: { urineColour = $0.flatMap(UrineColour.init(rawValue:)) }
+                )
+              )
+            }
+          }
+          
+          VStack{
+            Toggle("Muscle Soreness", isOn: $trackMuscleSoreness)
+              .font(.headline)
+              .foregroundColor(.accentPurple)
+              .tint(.accentPurple)
+            
+            if trackMuscleSoreness{
+              HorizontalScaleSelector(
+                options: MuscleSoreness.allCases.map { $0.label },
+                selectedIndex: Binding(
+                  get: { muscleSoreness?.rawValue },
+                  set: { muscleSoreness = $0.flatMap(MuscleSoreness.init(rawValue:)) }
+                )
+              )
+            }
+            
+          }
+          
+          VStack{
+            Toggle("Sweat Level", isOn: $trackSweatLevels)
+              .font(.headline)
+              .foregroundColor(.accentPurple)
+              .tint(.accentPurple)
+            
+            if trackSweatLevels{
+              HorizontalScaleSelector(
+                options: SweatLevel.allCases.map { $0.label },
+                selectedIndex: Binding(
+                  get: { sweatLevel?.rawValue },
+                  set: { sweatLevel = $0.flatMap(SweatLevel.init(rawValue:)) }
+                )
+              )
+            }
+            
+          }
+          
+          VStack{
+            Toggle("Anxiety", isOn: $trackAnxiety)
+              .font(.headline)
+              .foregroundColor(.accentPurple)
+              .tint(.accentPurple)
+            
+            if trackAnxiety{
+              HorizontalScaleSelector(
+                options: AnxietyLevel.allCases.map { $0.label },
+                selectedIndex: Binding(
+                  get: { anxietyLevel?.rawValue },
+                  set: { anxietyLevel = $0.flatMap(AnxietyLevel.init(rawValue:)) }
+                )
+              )
+            }
+            
           }
         }
+        .padding(.horizontal, 32)
+        .padding(.top, 12)
         
-        VStack{
-          Toggle("Urine Colour", isOn: $trackUrineColour)
-            .font(.headline)
-            .foregroundColor(.accentPurple)
-            .tint(.accentPurple)
-          
-          if trackUrineColour{
-            HorizontalScaleSelector(
-              options: UrineColour.allCases.map { $0.label },
-              selectedIndex: Binding(
-                get: { urineColour?.rawValue },
-                set: { urineColour = $0.flatMap(UrineColour.init(rawValue:)) }
-              )
-            )
-          }
-        }
-        
-        VStack{
-          Toggle("Muscle Soreness", isOn: $trackMuscleSoreness)
-            .font(.headline)
-            .foregroundColor(.accentPurple)
-            .tint(.accentPurple)
-          
-          if trackMuscleSoreness{
-            HorizontalScaleSelector(
-              options: MuscleSoreness.allCases.map { $0.label },
-              selectedIndex: Binding(
-                get: { muscleSoreness?.rawValue },
-                set: { muscleSoreness = $0.flatMap(MuscleSoreness.init(rawValue:)) }
-              )
-            )
-          }
-          
-        }
-        
-        VStack{
-          Toggle("Sweat Level", isOn: $trackSweatLevels)
-            .font(.headline)
-            .foregroundColor(.accentPurple)
-            .tint(.accentPurple)
-          
-          if trackSweatLevels{
-            HorizontalScaleSelector(
-              options: SweatLevel.allCases.map { $0.label },
-              selectedIndex: Binding(
-                get: { sweatLevel?.rawValue },
-                set: { sweatLevel = $0.flatMap(SweatLevel.init(rawValue:)) }
-              )
-            )
-          }
-          
-        }
-        
-        VStack{
-          Toggle("Anxiety", isOn: $trackAnxiety)
-            .font(.headline)
-            .foregroundColor(.accentPurple)
-            .tint(.accentPurple)
-          
-          if trackAnxiety{
-            HorizontalScaleSelector(
-              options: AnxietyLevel.allCases.map { $0.label },
-              selectedIndex: Binding(
-                get: { anxietyLevel?.rawValue },
-                set: { anxietyLevel = $0.flatMap(AnxietyLevel.init(rawValue:)) }
-              )
-            )
-          }
-          
-        }
-      }
-      .padding(.horizontal, 32)
-      .padding(.top, 12)
-      
-      Button("Submit"){
-        Task
-        {
-          Task {
+        Button("Submit"){
+          Task
+          {
+            Task {
               let trackables = buildTrackables()
               await viewModel.sendTrackables(trackables)
               clearSelectedItems()
+            }
           }
         }
+        .tint(.backgroundGrey)
+        .bold()
+        .frame(maxWidth: .infinity)
+        .padding(12)
+        .background(.accentPurple)
+        .cornerRadius(48)
+        .padding(12)
+        .padding(.horizontal, 32)
       }
-      .tint(.backgroundGrey)
-      .bold()
-      .frame(maxWidth: .infinity)
-      .padding(12)
-      .background(.accentPurple)
-      .cornerRadius(48)
-      .padding(12)
-      .padding(.horizontal, 32)
+    }
+    if showSuccessToast {
+      HStack(spacing: 12) {
+        Image(systemName: "checkmark.circle.fill")
+          .foregroundColor(.accentgreen)
+          .font(.title3)
+        Text("Check-in submitted!")
+          .fontWeight(.semibold)
+          .foregroundColor(.white)
+      }
+      .padding(.horizontal, 24)
+      .padding(.vertical, 14)
+      .background(Color.accentPurple)
+      .cornerRadius(32)
+      .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 4)
+      .padding(.bottom, 24)
+      .transition(.move(edge: .bottom).combined(with: .opacity))
     }
   }
   
@@ -277,11 +297,20 @@ struct DailyCheckInView: View {
     hydrationUnit = .litres
     sleepHours = 0
     restingHeartRate = ""
-    energyLevel = nil
+    energyLevels = nil
     urineColour = nil
     muscleSoreness = nil
     sweatLevel = nil
     anxietyLevel = nil
+    
+    withAnimation {
+        showSuccessToast = true
+    }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+        withAnimation {
+            showSuccessToast = false
+        }
+    }
   }
   
   private func buildTrackables() -> [TrackableItem] {
@@ -325,11 +354,11 @@ struct DailyCheckInView: View {
       }
 
       // Energy Level
-    if trackEnergyLevels, let energyLevel {
+    if trackEnergyLevels, let energyLevels {
           items.append(
               TrackableItem(
-                  name: "Energy Level",
-                  value_numeric: Double(energyLevel.rawValue),
+                  name: "Energy Levels",
+                  value_numeric: Double(energyLevels.rawValue),
                   value_text: nil
               )
           )
@@ -356,6 +385,39 @@ struct DailyCheckInView: View {
               )
           )
       }
+    
+    // Sweat Level
+    if trackSweatLevels, let sweatLevel {
+        items.append(
+            TrackableItem(
+                name: "Sweating",          // must match Trackable.name in DB exactly
+                value_numeric: Double(sweatLevel.rawValue),
+                value_text: nil
+            )
+        )
+    }
+
+    // Anxiety
+    if trackAnxiety, let anxietyLevel {
+        items.append(
+            TrackableItem(
+                name: "Anxiety",           // must match Trackable.name in DB exactly
+                value_numeric: Double(anxietyLevel.rawValue),
+                value_text: nil
+            )
+        )
+    }
+
+    // Body Temperature (also missing from buildTrackables)
+    if trackBodyTemp, bodyTemperature > 0 {
+        items.append(
+            TrackableItem(
+                name: "Body Temperature",
+                value_numeric: bodyTemperature,
+                value_text: nil
+            )
+        )
+    }
 
       return items
   }}

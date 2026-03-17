@@ -35,9 +35,9 @@ struct UserSettingsView: View {
           .foregroundColor(.accentPurple)
       Divider()
       
-      Button("Test Get Trackables "){
+      Button("Test Get User Info "){
         Task {
-          await viewModel.testGetTrackables()
+          await viewModel.testGetUserInfo()
         }
       }
       .tint(.backgroundGrey)
@@ -108,9 +108,7 @@ struct UserSettingsView: View {
         Button("Log Out"){
           Task
           {
-            Task {
-              authState.logout()
-            }
+            authState.logout()
           }
         }
         .tint(.backgroundGrey)

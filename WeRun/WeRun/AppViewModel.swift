@@ -15,6 +15,46 @@ class AppViewModel: ObservableObject {
   
   @Published var tests: TestResponse?
   @Published var isLoading = true
+  @Published var myInfo: UserInfoResponse?
+  @Published var myCalendar: [CycleDay]?
+  @Published var myAdvice: AdviceResponse?
+  
+  
+  func getUserInfo() async{
+    if (myInfo != nil){
+      return
+    }
+    do{
+      let response = try await APIManager.shared.getUserInfo()
+      DispatchQueue.main.async {
+        self.myInfo = response
+        print("🐞🧍 MyInfo: \(response.current_cycle)")
+      }
+    } catch { print("API Error:", error) }
+  }
+  
+  func getUserCalendar() async {
+    do{
+      let response = try await APIManager.shared.fetchCycleCalendar()
+      DispatchQueue.main.async {
+        self.myCalendar = response
+        print("🐞🧍 myCalendar: \(response)")
+      }
+    } catch { print("API Error:", error) }
+  }
+  
+  func getTodaysAdvice() async {
+    do{
+      let response = try await APIManager.shared.fetchTodaysAdvice(date: nil)
+      DispatchQueue.main.async {
+        self.myAdvice = response
+        print("🐞🧍 myAdvice: \(response)")
+      }
+    } catch { print("API Error:", error) }
+  }
+
+    
+  
   
   func testCall() async {
     if (tests != nil){
@@ -26,6 +66,7 @@ class AppViewModel: ObservableObject {
         self.tests = test
         self.isLoading = false
       }
+      print("🐞 test api: \(String(describing: self.tests))")
     }
     catch { print("API Error:", error) }
   }

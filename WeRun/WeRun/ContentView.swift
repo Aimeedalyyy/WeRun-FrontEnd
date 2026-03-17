@@ -11,18 +11,23 @@ import SwiftUI
 import Foundation
 
 struct ContentView: View {
-  @EnvironmentObject var authState: AppAuthState
-  
+    @EnvironmentObject var authState: AppAuthState
+
   var body: some View {
-    NavigationStack {
-        if authState.isAuthenticated {
-          HomeView()
-            .transition(.move(edge: .trailing).combined(with: .opacity))
-        } else {
-          LoginRegisterView()
-            .transition(.move(edge: .leading).combined(with: .opacity))
-        }
+    let _ = print("🐞 ContentView body — isAuthenticated: \(authState.isAuthenticated)")
+    
+    if authState.isAuthenticated {
+      NavigationStack {
+        HomeView()
+      }
+      .transition(.move(edge: .trailing).combined(with: .opacity))
+    } else {
+      NavigationStack {
+        LoginRegisterView()
+      }
+      .transition(.move(edge: .leading).combined(with: .opacity))
     }
+    
   }
 }
 

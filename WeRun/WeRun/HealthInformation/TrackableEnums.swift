@@ -38,17 +38,24 @@ enum UrineColour: Int, CaseIterable {
 }
 
 enum MuscleSoreness: Int, CaseIterable {
-    case stiff = 0
-    case okay
-    case heavy
-    
-    var label: String {
-        switch self {
-        case .stiff: return "Stiff"
-        case .okay: return "Okay"
-        case .heavy: return "Heavy"
-        }
-    }
+    case none = 0       // No soreness
+    case okay = 1       // Mild/normal
+    case stiff = 2      // Noticeably stiff
+    case heavy = 3      // Heavy/impacting movement
+  
+  var label: String {
+      switch self {
+      case .none: return "None"
+
+      case .okay:
+        return "Okay"
+      case .stiff:
+        return "Stiff"
+      case .heavy:
+        return "Heavy"
+      }
+  }
+
 }
 
 enum SweatLevel: Int, CaseIterable {

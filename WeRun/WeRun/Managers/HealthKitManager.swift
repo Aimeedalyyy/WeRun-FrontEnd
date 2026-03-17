@@ -17,60 +17,66 @@ enum LoadState {
 }
 
 enum Symptoms: String, CaseIterable {
-  case abdominalCramps
-  case acne
-  case bloating
-  case breastPain
-  case lowerBackPain
-  case fatigue
-  case diarrhoea
-  case chills
-  case nausea
-  
-  var displayName: String {
-    switch self {
-    case .abdominalCramps:
-      return "Abdominal Cramps"
-    case .acne:
-      return "Acne"
-    case .bloating:
-      return "Bloating"
-    case .breastPain:
-      return "Breast Pain"
-    case .lowerBackPain:
-      return "Lower Back Pain"
-    case .fatigue:
-      return "Fatigue"
-    case .diarrhoea:
-      return "Diarrhoea"
-    case .chills:
-      return "Chills"
-    case .nausea:
-      return "Nausea"
+    case abdominalCramps
+    case acne
+    case bloating
+    case breastPain
+    case lowerBackPain
+    case fatigue
+    case diarrhoea
+    case chills
+    case nausea
+    case headache
+    case cramps
+
+    // Display name for UI
+    var displayName: String {
+        switch self {
+        case .abdominalCramps: return "Abdominal Cramps"
+        case .acne: return "Acne"
+        case .bloating: return "Bloating"
+        case .breastPain: return "Breast Pain"
+        case .lowerBackPain: return "Lower Back Pain"
+        case .fatigue: return "Fatigue"
+        case .diarrhoea: return "Diarrhoea"
+        case .chills: return "Chills"
+        case .nausea: return "Nausea"
+        case .headache: return "Headache"
+        case .cramps: return "Cramps"
+        }
     }
-  }
-    
-    var identifier: HKCategoryTypeIdentifier{
-      switch self{
-      case .abdominalCramps:
-        return .abdominalCramps
-      case .acne:
-        return .acne
-      case .bloating:
-        return .bloating
-      case .breastPain:
-        return .breastPain
-      case .lowerBackPain:
-        return .lowerBackPain
-      case .fatigue:
-        return .fatigue
-      case .diarrhoea:
-        return .diarrhea
-      case .chills:
-        return .chills
-      case .nausea:
-        return .nausea
-      }
+
+    // HealthKit category identifier
+    var identifier: HKCategoryTypeIdentifier {
+        switch self {
+        case .abdominalCramps, .cramps: return .abdominalCramps
+        case .acne: return .acne
+        case .bloating: return .bloating
+        case .breastPain: return .breastPain
+        case .lowerBackPain: return .lowerBackPain
+        case .fatigue: return .fatigue
+        case .diarrhoea: return .diarrhea
+        case .chills: return .chills
+        case .nausea: return .nausea
+        case .headache: return .headache
+        }
+    }
+
+    // Backend UUID for logging
+    var id: String {
+        switch self {
+        case .headache: return "2eebf851-c1cd-4f9e-9e4f-89129fb1f192"
+        case .fatigue: return "949896b0-c9e5-4d57-b8ce-1d7fd157f7a6"
+        case .cramps: return "2859dfde-28f8-42cc-abb2-2bfee414915b"
+        case .abdominalCramps: return "f4a223d8-8bff-48f6-9186-a46cd1e5af7c"
+        case .breastPain: return "aefb8f68-3e08-46e5-b736-7d5c2fdab239"
+        case .lowerBackPain: return "dc0e6cd6-ccd0-4146-a635-7071ddd099db"
+        case .acne: return "aaaaaaaa-0002-0000-0000-000000000000"
+        case .bloating: return "aaaaaaaa-0003-0000-0000-000000000000"
+        case .diarrhoea: return "aaaaaaaa-0007-0000-0000-000000000000"
+        case .chills: return "aaaaaaaa-0008-0000-0000-000000000000"
+        case .nausea: return "aaaaaaaa-0009-0000-0000-000000000000"
+        }
     }
 }
 
@@ -79,7 +85,7 @@ struct MenstrualCycle: Hashable {
     let startDate: Date   // period start date
     let endDate: Date     // period end date
     let lengthInDays: Int // period length
-    //let flowSamples: [HKCategorySample]
+    let flowSamples: [HKCategorySample]
 }
 
 
@@ -192,9 +198,9 @@ class HealthKitManager: ObservableObject{
       
       healthStore.save(sample) { success, error in
           if success {
-              print("🐞🐞🐞 Saved menstrual flow sample")
+              print("🐞🩸 Saved menstrual flow sample")
           } else {
-              print("🐞🐞🐞 Error: \(String(describing: error))")
+              print("⚠️🩸 Error: \(String(describing: error))")
           }
       }
   }
@@ -215,9 +221,9 @@ class HealthKitManager: ObservableObject{
     
     healthStore.save(sample) { success, error in
         if success {
-          print("Saved \(symptom.displayName) sample (\(success))")
+          print("🐞🩸Saved \(symptom.displayName) sample (\(success))")
         } else {
-            print("Error: \(String(describing: error))")
+            print("⚠️🩸Error: \(String(describing: error))")
         }
     }
 
@@ -333,8 +339,8 @@ class HealthKitManager: ObservableObject{
       return MenstrualCycle(
           startDate: first.startDate,
           endDate: last.endDate,
-          lengthInDays: length
-          //flowSamples: samples
+          lengthInDays: length,
+          flowSamples: samples
       )
   }
   

@@ -406,7 +406,7 @@ struct RunningMainView: View {
     
     // MARK: - Helper Functions
     private func authorize() {
-        print("authorising location details")
+        print("🐞authorising location details")
         if WorkoutManager.shared.requestLocationPermission() {
             viewModel.isLocationAuthorized = true
         }

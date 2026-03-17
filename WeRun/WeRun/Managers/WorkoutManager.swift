@@ -123,17 +123,17 @@ class WorkoutManager: NSObject, ObservableObject, CLLocationManagerDelegate {
                 currentSpeed = location.speed > 0 ? location.speed : 0
                 
                 // Debug: Uncomment to see distance updates
-                print("Distance increment: \(distanceIncrement)m, Total: \(distance)m, Accuracy: \(location.horizontalAccuracy)m")
+                print("🐞🏃Distance increment: \(distanceIncrement)m, Total: \(distance)m, Accuracy: \(location.horizontalAccuracy)m")
             }
         } else {
             // First location
-            print("First location acquired with accuracy: \(location.horizontalAccuracy)m")
+            print("🐞📍🏃First location acquired with accuracy: \(location.horizontalAccuracy)m")
         }
         
         lastLocation = location
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location error: \(error.localizedDescription)")
+        print("⚠️Location error: \(error.localizedDescription)")
     }
 }

@@ -11,8 +11,6 @@ import Foundation
 final class AppAuthState: ObservableObject {
   @Published var isAuthenticated: Bool = false
 
-
-
     func logout() {
         AuthManager.shared.logout()
         isAuthenticated = false

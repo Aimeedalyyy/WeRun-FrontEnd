@@ -3,7 +3,10 @@
 //  WeRun
 //
 //  Created by Aimee Daly on 03/12/2025.
-//
+// let baseURL =  "http://0.0.0.0:8000/api/"  // Make sure it ends with '/'
+
+import Foundation
+import SwiftUI
 
 struct DevConfig {
     static let username = "aimeedaly"
@@ -15,94 +18,69 @@ struct DevConfig {
 import Foundation
 
 class APIManager {
+    @EnvironmentObject var authState: AppAuthState
     static let shared = APIManager()
     private init() {}
     
-    //let baseURL =  "http://0.0.0.0:8000/api/"  // Make sure it ends with '/'
+
 
     
     // MARK: - Helper Request Function
   private func makeRequest<T: Codable>(
-      endpoint: String,
-      method: String,
-      body: Data? = nil,
-      retryOnAuthFailure: Bool = true
+          endpoint: String,
+          method: String,
+          body: Data? = nil,
+          retryOnAuthFailure: Bool = true
   ) async throws -> T {
-
-      // 1️⃣ Build URL
-      guard let url = URL(string: DevConfig.baseURL + endpoint) else {
-          throw URLError(.badURL)
-      }
-
-      var request = URLRequest(url: url)
-      request.httpMethod = method
-      request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-      // 2️⃣ Inject access token dynamically from AuthManager
-      if let accessToken = AuthManager.shared.accessToken {
-          request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-      }
-
-      if let body = body {
-          request.httpBody = body
-      }
-
-      // 3️⃣ Perform network request
-      let (data, response) = try await URLSession.shared.data(for: request)
-
-      // 4️⃣ Cast HTTP response
-      guard let http = response as? HTTPURLResponse else {
-          throw URLError(.badServerResponse)
-      }
-
-      // 5️⃣ Handle 401 → attempt refresh and retry once
-      print("🐞🐞🐞 HTTP Status Code:\(http.statusCode)")
+    
+    // 1️⃣ Build URL
+    guard let url = URL(string: DevConfig.baseURL + endpoint) else {
+      throw URLError(.badURL)
+    }
+    
+    var request = URLRequest(url: url)
+    request.httpMethod = method
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    
+    // 2️⃣ Get a valid (auto-refreshed if needed) token BEFORE sending
+    //    Skip for unauthenticated endpoints like login/register
+    if let token = try? await AuthManager.shared.validAccessToken() {
+      request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    }
+    
+    if let body = body {
+      request.httpBody = body
+    }
+    
+    // 3️⃣ Perform network request
+    let (data, response) = try await URLSession.shared.data(for: request)
+    
+    guard let http = response as? HTTPURLResponse else {
+      throw URLError(.badServerResponse)
+    }
+    
+    print("🐞 HTTP \(http.statusCode) — \(endpoint)")
+    
+    // 4️⃣ 401 = refresh token is also dead (validAccessToken already tried refreshing)
+    //    Just log out — no point retrying
     if http.statusCode == 401 {
-      print("🔐 401 received, retryOnAuthFailure=\(retryOnAuthFailure)")
-      
-      let refreshed = await refreshAccessToken()
-      
-      
-      guard refreshed else {
-        AuthManager.shared.logout()
-        throw URLError(.userAuthenticationRequired)
-      }
-      
-      return try await makeRequest(
-        endpoint: endpoint,
-        method: method,
-        body: body,
-        retryOnAuthFailure: false
+      AuthManager.shared.logout()
+      throw URLError(.userAuthenticationRequired)
+    }
+    
+    // 5️⃣ Handle other HTTP errors
+    guard (200...299).contains(http.statusCode) else {
+      let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
+      throw NSError(
+        domain: "",
+        code: http.statusCode,
+        userInfo: [NSLocalizedDescriptionKey: errorText]
       )
     }
-
-
-      // 6️⃣ Handle other HTTP errors
-      guard (200...299).contains(http.statusCode) else {
-          let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
-          throw NSError(
-              domain: "",
-              code: http.statusCode,
-              userInfo: [NSLocalizedDescriptionKey: errorText]
-          )
-      }
-
-      // 7️⃣ Decode JSON only on success
-      return try JSONDecoder().decode(T.self, from: data)
+    
+    // 6️⃣ Decode
+    return try JSONDecoder().decode(T.self, from: data)
   }
-  
-  private func refreshAccessToken() async -> Bool {
-      guard let refreshURL = URL(string: DevConfig.baseURL + "token/refresh/") else {
-          return false
-      }
-
-      return await withCheckedContinuation { continuation in
-          AuthManager.shared.refreshAccessToken(refreshURL: refreshURL) { success in
-              continuation.resume(returning: success)
-          }
-      }
-  }
-
 
     
     // MARK: - Endpoints
@@ -140,46 +118,78 @@ class APIManager {
   func getTrackables() async throws -> userTrackableResponse {
       return try await makeRequest(endpoint: "api/user_tracking/", method: "GET")
   }
+  
+  func getUserInfo() async throws -> UserInfoResponse {
+      return try await makeRequest(endpoint: "api/user-info/", method: "GET")
+  }
+  
+  func fetchCycleCalendar() async throws -> [CycleDay] {
+      try await makeRequest(endpoint: "api/cycle-calendar/", method: "GET")
+    
+  }
+  
+  func fetchTodaysAdvice(date: Date?) async throws -> AdviceResponse {
+      let endpoint: String
+
+      if let date = date {
+          let dateString = DateHelpers.formatDateForAPI(date)
+          endpoint = "api/advice/today/?date=\(dateString)"
+      } else {
+          endpoint = "api/advice/today/"
+      }
+
+      return try await makeRequest(endpoint: endpoint, method: "GET")
+  }
+  
+
     
     // Log a run
   func logRun(run: RunEntryRequest) async throws -> [String: Any] {
     let body = try JSONEncoder().encode(run)
-    guard let url = URL(string: baseURL + "log-run/") else { throw URLError(.badURL) }
+    guard let url = URL(string: DevConfig.baseURL + "api/log-run/") else {
+      throw URLError(.badURL)
+    }
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
-    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-    if let accessToken = AuthManager.shared.accessToken {
-        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    
+    if let token = try? await AuthManager.shared.validAccessToken() {
+      //print("🔑 Attaching token: \(token.prefix(20))...")
+      request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    } else {
+      print("⚠️ No token attached to request!")
     }
     
     request.httpBody = body
-    
     let (data, response) = try await URLSession.shared.data(for: request)
-    if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
-      let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
-      throw NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorText])
+    
+    if let http = response as? HTTPURLResponse, http.statusCode == 401 {
+      AuthManager.shared.logout()
+      throw URLError(.userAuthenticationRequired)
     }
     
-    return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] ?? [:]
+    guard let http = response as? HTTPURLResponse,
+          (200...299).contains(http.statusCode) else {
+      let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
+      throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: errorText])
+    }
+    
+    return try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
   }
-  
+
   func login(username: String, password: String) async throws -> JWTResponse {
-          let loginBody = LoginRequest(username: username, password: password)
-          let bodyData = try JSONEncoder().encode(loginBody)
+      let body = try JSONEncoder().encode(LoginRequest(username: username, password: password))
+      // makeRequest will try validAccessToken() and get nil (no token yet) — that's fine
+      let response: JWTResponse = try await makeRequest(
+          endpoint: "auth/token/",
+          method: "POST",
+          body: body
+      )
+      // Store tokens immediately after login
+      AuthManager.shared.storeTokens(access: response.access, refresh: response.refresh)
+      return response
+  }
 
-          let jwtResponse: JWTResponse = try await makeRequest(
-              endpoint: "auth/token/",
-              method: "POST",
-              body: bodyData
-          )
-
-
-
-
-          return jwtResponse
-      }
-  
-  
   func register(registerBody: RegisterRequest) async throws -> RegisterResponse {
       let bodyData = try JSONEncoder().encode(registerBody)
       
@@ -201,6 +211,19 @@ class APIManager {
       
       return try await makeRequest(
           endpoint: "api/log_trackables/",
+          method: "POST",
+          body: body
+      )
+  }
+  
+  
+  func logSymptom(body: Data) async throws -> LogTrackableResponse {
+//      let body = try JSONEncoder().encode(
+//        LogSymptomRequest(symptom_name: name, date: date, value_text: "FROM APP")
+//      )
+      
+      return try await makeRequest(
+          endpoint: "api/symptoms/",
           method: "POST",
           body: body
       )

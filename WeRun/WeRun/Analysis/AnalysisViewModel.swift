@@ -23,21 +23,23 @@ class AnalysisViewModel: ObservableObject{
         self.phases = analysisResponse.phases
         self.isLoading = false
       }
-      print("🐞🐞🐞 \(self.analysisResponse as Any) 🐞🐞")
+      //print("🐞🩸📈 \(self.analysisResponse as Any) 🐞🐞")
     }
-    catch { print("API Error:", error) }
+    catch { print("⚠️🩸📈Get Analysis API Error:", error) }
   }
   
 
   
   func getPaceStatString(phase: PhaseStats) -> returnString {
       // Find the phase with the fastest pace (lowest value)
-      guard let fastestPhase = phases.min(by: { $0.current_avg_pace < $1.current_avg_pace }) else {
+    guard let fastestPhase = phases.min(by: { $0.current_avg_pace ?? 0.0 < $1.current_avg_pace ?? 0.0 }) else {
           return returnString(string: "Pace data unavailable")
       }
       
     let isFastest = phase.phase == fastestPhase.phase
-      let percentSlowerThanFastest = ((phase.current_avg_pace - fastestPhase.current_avg_pace) / fastestPhase.current_avg_pace) * 100
+    let current_avg_pace = phase.current_avg_pace ?? 0.0
+    let fastestPhasePace = fastestPhase.current_avg_pace ?? 0.0
+    let percentSlowerThanFastest = ((current_avg_pace - fastestPhasePace) / (fastestPhase.current_avg_pace ?? 0.0)) * 100
       
       if isFastest {
         return returnString(string: "Your fastest phase! Keep crushing it!", isPeak: true)
@@ -52,12 +54,14 @@ class AnalysisViewModel: ObservableObject{
 
   func getMotivationStatString(phase: PhaseStats) -> returnString {
       // Find the phase with highest motivation
-      guard let mostMotivatedPhase = phases.max(by: { $0.current_avg_motivation < $1.current_avg_motivation }) else {
+    guard let mostMotivatedPhase = phases.max(by: { $0.current_avg_motivation ?? 0.0 < $1.current_avg_motivation ?? 0.0 }) else {
         return returnString(string: "Motivation data unavailable")
       }
       
       let isMostMotivated = phase.phase == mostMotivatedPhase.phase
-      let motivationDiff = phase.current_avg_motivation - mostMotivatedPhase.current_avg_motivation
+      let current_avg_motivation = phase.current_avg_motivation ?? 0.0
+    
+      let motivationDiff =  current_avg_motivation - (mostMotivatedPhase.current_avg_motivation ?? 0.0)
       
       if isMostMotivated {
           return  returnString(string: "Peak motivation phase! You're feeling your strongest!", isPeak: true)

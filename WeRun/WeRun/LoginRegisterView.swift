@@ -11,6 +11,7 @@ import SwiftUI
 
 struct LoginRegisterView: View {
     @StateObject private var viewModel = AuthViewModel()
+    @EnvironmentObject var authState: AppAuthState
     @State private var showCreateAccount = false
 
     var body: some View {
@@ -60,6 +61,9 @@ struct LoginRegisterView: View {
                     Button {
                         Task {
                             await viewModel.authenticate()
+                            if viewModel.isLoggedIn {
+                              authState.loginSucceeded()  // ← swap via ContentView
+                            }
                         }
                     } label: {
                         Text("Log In")
@@ -85,13 +89,6 @@ struct LoginRegisterView: View {
                     .padding(.top, 8)
 
                     Spacer(minLength: 20)
-
-                    // MARK: NavigationLink to HomeView
-                    NavigationLink(
-                        destination: HomeView(),
-                        isActive: $viewModel.isLoggedIn,
-                        label: { EmptyView() }
-                    )
                 }
                 .padding(24)
             }

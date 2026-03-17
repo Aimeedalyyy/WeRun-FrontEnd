@@ -50,7 +50,7 @@ struct PaceView: View {
     PaceChart(viewModel: viewModel)
     ScrollView{
       ForEach(viewModel.phases, id: \.self) { phase in
-        AnalysisCard(title: phase.phase, value: viewModel.getPaceStatString(phase: phase).string, avgValue: viewModel.getPaceValueString(value: phase.current_avg_pace), colour: .accentRed, isPeak: viewModel.getPaceStatString(phase: phase).isPeak)
+        AnalysisCard(title: phase.phase, value: viewModel.getPaceStatString(phase: phase).string, avgValue: viewModel.getPaceValueString(value: phase.current_avg_pace ?? 0.0), colour: .accentRed, isPeak: viewModel.getPaceStatString(phase: phase).isPeak)
           .padding(.horizontal, 16)
         
       }
@@ -67,7 +67,7 @@ struct MotivationView: View {
     MotivationChart(viewModel: viewModel)
     ScrollView{
       ForEach(viewModel.phases, id: \.self) { phase in
-        AnalysisCard(title: phase.phase, value: viewModel.getMotivationStatString(phase: phase).string, avgValue: viewModel.getMotivationValueString(value: phase.current_avg_motivation), colour: .accentgreen, isPeak: viewModel.getMotivationStatString(phase: phase).isPeak)
+        AnalysisCard(title: phase.phase, value: viewModel.getMotivationStatString(phase: phase).string, avgValue: viewModel.getMotivationValueString(value: phase.current_avg_motivation ?? 0.0), colour: .accentgreen, isPeak: viewModel.getMotivationStatString(phase: phase).isPeak)
           .padding(.horizontal, 16)
         
       }
@@ -83,12 +83,12 @@ struct PaceChart: View {
     Chart(viewModel.phases) { phase in
         LineMark(
           x: .value("Day", phase.phase),
-          y: .value("Amount", phase.current_avg_pace)
+          y: .value("Amount", phase.current_avg_pace ?? 0.0)
         )
         .foregroundStyle(.gray)
         PointMark(
             x: .value("Day", phase.phase),
-            y: .value("Amount", phase.current_avg_pace)
+            y: .value("Amount", phase.current_avg_pace ?? 0.0)
         )
         .foregroundStyle(.accentRed)
         .symbolSize(60)
@@ -105,13 +105,13 @@ struct MotivationChart: View{
     Chart(viewModel.phases) { phase in
         LineMark(
           x: .value("Day", phase.phase),
-          y: .value("Amount", phase.current_avg_motivation)
+          y: .value("Amount", phase.current_avg_motivation ?? 0.0)
         )
         .foregroundStyle(.gray)
 
         PointMark(
             x: .value("Day", phase.phase),
-            y: .value("Amount", phase.current_avg_motivation)
+            y: .value("Amount", phase.current_avg_motivation ?? 0.0)
         )
         .foregroundStyle(.accentgreen)
     }

@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 class loginViewModel: ObservableObject{
   @Published var token: String?
   @Published var error: Error?
@@ -24,9 +23,9 @@ class loginViewModel: ObservableObject{
                 password: "password"
             )
           
-            print("Logged in! Token:", accessToken)
+            print("🐞🧍Logged in! Token:", accessToken)
         } catch {
-            print("Login failed:", error.localizedDescription)
+            print("⚠️🧍Login failed:", error.localizedDescription)
         }
     }
   }

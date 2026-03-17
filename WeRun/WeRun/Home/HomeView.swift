@@ -14,6 +14,7 @@ struct HomeView: View {
   @StateObject private var runningViewModel = RunningViewModel()
   @StateObject private var analysisViewModel = AnalysisViewModel()
   @StateObject private var authViewModel = AuthViewModel()
+  @StateObject private var calendarViewModel = CalendarViewModel()
   
   var body: some View {
     
@@ -22,28 +23,34 @@ struct HomeView: View {
             VStack {
               if viewModel.isLoading {
                 ProgressView("Loading...")
-              } else if let test = viewModel.tests {
-                let phase = CyclePhase.from(test.calculated_phase)
-                ScrollView{
-                  MenstrualCalendarScreen(menstrualSample: healthViewModel.menstrualData, today: CycleDay(dayofCycle: 1, date: Date(), phase: phase, workoutType: ""), dayOfCycle: test.cycle_day)
+              } else
+                if healthViewModel.dataFetched {
+                  if let cal = viewModel.myCalendar{
+                    if let advice = viewModel.myAdvice?.advice {
+                      MenstrualCalendarScreen(cycleDays: cal, advice: advice, viewModel: calendarViewModel)
+                        .padding(.horizontal, 12)
+                    }
+                  }
                   
                 }
-                .padding(.horizontal, 8)
-              } else {
+              else {
                 Text("No data available")
               }
             }
             .background(Color.gray.opacity(0.05))
             .onAppear() {
               Task{
+                print("testCall")
                 await viewModel.testCall()
-
+                await viewModel.getUserInfo()
+                await viewModel.getUserCalendar()
+                await viewModel.getTodaysAdvice()
               }
             }
 
         }
         Tab("", systemImage: "heart.text.square") {
-            HealthInfoMainView(viewModel: healthViewModel)
+          HealthInfoMainView(viewModel: healthViewModel, appViewModel: viewModel)
               .background(Color.gray.opacity(0.05))
           
         }

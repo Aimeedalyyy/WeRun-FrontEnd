@@ -20,7 +20,7 @@ func currentCycle(from cycles: [MenstrualCycle]) -> MenstrualCycle? {
 
 
 func generateCycleDays(
-    for currentCycle: MenstrualCycle,
+    for currentCycle: UserCycleResponse,
     averages: CycleAverages
 ) -> [CycleDay] {
     
@@ -31,76 +31,100 @@ func generateCycleDays(
     let cycleLength = averages.averageCycleLength
     
     var cycleDayNumber = 1
-    
+  
+  if let startdate = currentCycle.startDate{
     // 1️⃣ Menstrual Phase
     for offset in 0..<menstrualLength {
-        if let date = calendar.date(byAdding: .day, value: offset, to: currentCycle.startDate) {
-            days.append(
-                CycleDay(
-                    dayofCycle: cycleDayNumber,
-                    date: date,
-                    phase: .menstruation,
-                    workoutType: nil
-                )
-            )
-            cycleDayNumber += 1
-        }
-    }
-    
-    // Ovulation occurs ~14 days before next cycle
-    let lutealLength = 14
-    let follicularLength = max(cycleLength - menstrualLength - lutealLength - 1, 3)
-    
-    // 2️⃣ Follicular Phase
-    let follicularStart = calendar.date(byAdding: .day, value: menstrualLength, to: currentCycle.startDate)!
-    
-    for offset in 0..<follicularLength {
-        if let date = calendar.date(byAdding: .day, value: offset, to: follicularStart) {
-            days.append(
-                CycleDay(
-                    dayofCycle: cycleDayNumber,
-                    date: date,
-                    phase: .follicular,
-                    workoutType: nil
-                )
-            )
-            cycleDayNumber += 1
-        }
-    }
-    
-    // 3️⃣ Ovulation Day
-    if let ovulationDate = calendar.date(byAdding: .day, value: follicularLength, to: follicularStart) {
+      if let date = calendar.date(byAdding: .day, value: offset, to: startdate) {
         days.append(
-            CycleDay(
-                dayofCycle: cycleDayNumber,
-                date: ovulationDate,
-                phase: .ovulation,
-                workoutType: nil
-            )
+          CycleDay(
+            day_of_cycle: cycleDayNumber,
+            date: date,
+            phase: .menstruation,
+            workout_type: nil
+          )
         )
         cycleDayNumber += 1
+      }
+    }
+    
+    let lutealLength = 14
+    let ovulationLength = 1    
+    // Adjust follicular length to preserve total cycle length
+    let follicularLength = max(
+      cycleLength - menstrualLength - lutealLength - ovulationLength,
+      3
+    )
+    
+    // 2️⃣ Follicular Phase
+    let follicularStart = calendar.date(
+      byAdding: .day,
+      value: menstrualLength,
+      to: startdate
+    )!
+    
+    for offset in 0..<follicularLength {
+      if let date = calendar.date(byAdding: .day, value: offset, to: follicularStart) {
+        days.append(
+          CycleDay(
+            day_of_cycle: cycleDayNumber,
+            date: date,
+            phase: .follicular,
+            workout_type: nil
+          )
+        )
+        cycleDayNumber += 1
+      }
+    }
+    
+    // 3️⃣ Ovulation Phase (3 days)
+    let ovulationStart = calendar.date(
+      byAdding: .day,
+      value: follicularLength,
+      to: follicularStart
+    )!
+    
+    for offset in 0..<ovulationLength {
+      if let date = calendar.date(byAdding: .day, value: offset, to: ovulationStart) {
+        days.append(
+          CycleDay(
+            day_of_cycle: cycleDayNumber,
+            date: date,
+            phase: .ovulation,
+            workout_type: nil
+          )
+        )
+        cycleDayNumber += 1
+      }
     }
     
     // 4️⃣ Luteal Phase
-    let lutealStart = calendar.date(byAdding: .day, value: follicularLength + 1, to: follicularStart)!
+    let lutealStart = calendar.date(
+      byAdding: .day,
+      value: follicularLength + ovulationLength,
+      to: follicularStart
+    )!
     
     for offset in 0..<lutealLength {
-        if let date = calendar.date(byAdding: .day, value: offset, to: lutealStart) {
-            days.append(
-                CycleDay(
-                    dayofCycle: cycleDayNumber,
-                    date: date,
-                    phase: .luteal,
-                    workoutType: nil
-                )
-            )
-            cycleDayNumber += 1
-        }
+      if let date = calendar.date(byAdding: .day, value: offset, to: lutealStart) {
+        days.append(
+          CycleDay(
+            day_of_cycle: cycleDayNumber,
+            date: date,
+            phase: .luteal,
+            workout_type: nil
+          )
+        )
+        cycleDayNumber += 1
+      }
     }
     
-    print("🐞🐞 Generating Cycle days for Calendar view: \(days)")
+        print("🐞🗓️ Generating Cycle days for Calendar view: \(days)")
     
     return days
+  } else {
+    return []
+  }
 }
 
 func assignWorkouts(to days: [CycleDay]) -> [CycleDay] {
@@ -116,41 +140,31 @@ func assignWorkouts(to days: [CycleDay]) -> [CycleDay] {
         case .luteal:
             workout = ["Steady Run", "Long Run", "Easy Run"].randomElement()
         }
-      return CycleDay(dayofCycle: day.dayofCycle, date: day.date, phase: day.phase, workoutType: workout)
+      return CycleDay(day_of_cycle: day.day_of_cycle, date: day.date, phase: day.phase, workout_type: workout)
     }
 }
 
 
-func buildCalendarDays(from cycles: [MenstrualCycle]) -> [CycleDay] {
-    guard let current = cycles.sorted(by: { $0.startDate > $1.startDate }).first else {
-      print("⚠️⚠️ error in building Calendar")
+func buildCalendarDays(from cycles: [UserCycleResponse]) -> [CycleDay] {
+  guard let current = cycles.sorted(by: { $0.period_start_date > $1.period_start_date }).first else {
+      print("⚠️🗓️ error in building Calendar")
         return []
     }
     
     let averages = computeAverages(from: cycles)
-    print("🐞🐞 Built the calendar days! \(averages)")
+    print("🐞🗓️ Built the calendar days! \(averages)")
     return generateCycleDays(for: current, averages: averages)
 }
 
 
-//func buildCalendarDays(from cycles: [MenstrualCycle]) -> [CycleDay] {
-//    guard let current = currentCycle(from: cycles) else { return [] }
-//    
-//    let predictedDays = generateCycleDays(for: current)
-//    let daysWithWorkouts = assignWorkouts(to: predictedDays)
-//    
-//    print("🐞🐞 Built the calendar days! \(daysWithWorkouts)")
-//    
-//    return daysWithWorkouts
-//}
 
-func computeAverages(from cycles: [MenstrualCycle]) -> CycleAverages {
+func computeAverages(from cycles: [UserCycleResponse]) -> CycleAverages {
     guard !cycles.isEmpty else {
-        print("⚠️⚠️ returning avg of 28 and 5 (defaults)")
+        print("⚠️🗓️ returning avg of 28 and 5 (defaults)")
         return CycleAverages(averageCycleLength: 28, averageMenstrualLength: 5)
     }
     
-    let sorted = cycles.sorted { $0.startDate < $1.startDate }
+  let sorted = cycles.sorted { $0.period_start_date < $1.period_start_date }
     
     // Average menstrual (bleeding) length
     let menstrualLengths = sorted.map { max($0.lengthInDays, 1) }
@@ -158,12 +172,14 @@ func computeAverages(from cycles: [MenstrualCycle]) -> CycleAverages {
     
     // Average full cycle length (difference between start dates)
     var cycleLengths: [Int] = []
+  
+
     
     for i in 0..<(sorted.count - 1) {
         let days = Calendar.current.dateComponents(
             [.day],
-            from: sorted[i].startDate,
-            to: sorted[i + 1].startDate
+            from: DateHelpers.Todate(from: sorted[i].period_start_date),
+            to: DateHelpers.Todate(from: sorted[i + 1].period_start_date)
         ).day ?? 28
         
         cycleLengths.append(days)

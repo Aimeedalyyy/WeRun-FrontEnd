@@ -12,6 +12,7 @@ class CalendarViewModel: ObservableObject {
   @Published var selectedDate: Date?
   @Published var myAdviceforDay: AdviceResponse?
   @Published var adviceByDate: [Date: AdviceResponse] = [:]
+  @Published var showAddRaceGoalModal: Bool = false
   
   
   

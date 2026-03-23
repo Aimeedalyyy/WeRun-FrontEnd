@@ -128,6 +128,22 @@ class APIManager {
     
   }
   
+  func getRaceGoal() async throws -> RaceGoalResponse {
+    return try await makeRequest(endpoint: "api/race-goal/", method: "GET")
+  }
+  
+  func submitRaceGoal(race: RaceGoalRequest) async throws -> SubmitRaceGoalReponse{
+    let body = try JSONEncoder().encode(race)
+    // Call the /api/register/ endpoint
+    let response: SubmitRaceGoalReponse = try await makeRequest(
+        endpoint: "api/race-goal/",
+        method: "POST",
+        body: body
+    )
+    
+    return response
+    
+  }
   func fetchTodaysAdvice(date: Date?) async throws -> AdviceResponse {
       let endpoint: String
 
@@ -218,10 +234,6 @@ class APIManager {
   
   
   func logSymptom(body: Data) async throws -> LogTrackableResponse {
-//      let body = try JSONEncoder().encode(
-//        LogSymptomRequest(symptom_name: name, date: date, value_text: "FROM APP")
-//      )
-      
       return try await makeRequest(
           endpoint: "api/symptoms/",
           method: "POST",

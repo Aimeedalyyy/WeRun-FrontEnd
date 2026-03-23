@@ -15,6 +15,7 @@ struct HomeView: View {
   @StateObject private var analysisViewModel = AnalysisViewModel()
   @StateObject private var authViewModel = AuthViewModel()
   @StateObject private var calendarViewModel = CalendarViewModel()
+  @StateObject private var raceViewModel = RaceViewModel()
   
   var body: some View {
     
@@ -27,8 +28,11 @@ struct HomeView: View {
                 if healthViewModel.dataFetched {
                   if let cal = viewModel.myCalendar{
                     if let advice = viewModel.myAdvice?.advice {
-                      MenstrualCalendarScreen(cycleDays: cal, advice: advice, viewModel: calendarViewModel)
-                        .padding(.horizontal, 12)
+                      if let raceGoal = viewModel.raceGoal{
+                        MenstrualCalendarScreen(cycleDays: cal, advice: advice, viewModel: calendarViewModel, raceGoal: raceGoal, raceViewModel: raceViewModel)
+                          .padding(.horizontal, 12)
+                      }
+                      
                     }
                   }
                   
@@ -40,11 +44,11 @@ struct HomeView: View {
             .background(Color.gray.opacity(0.05))
             .onAppear() {
               Task{
-                print("testCall")
                 await viewModel.testCall()
                 await viewModel.getUserInfo()
                 await viewModel.getUserCalendar()
                 await viewModel.getTodaysAdvice()
+                await viewModel.getRaceGoal()
               }
             }
 

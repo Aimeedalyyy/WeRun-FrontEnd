@@ -109,45 +109,54 @@ struct HealthInfoMainView: View {
           .padding(12)
         }
         .frame(maxWidth: .infinity)
-        .background(colour.backgroundColour)
-        .cornerRadius(12)
+        .background(
+          RoundedRectangle(cornerRadius: 16)
+            .fill(colour.backgroundColour)
+        )
+        .overlay(
+          RoundedRectangle(cornerRadius: 16)
+            .stroke(colour.textColor, lineWidth: 2)
+        )
         .padding(.horizontal, 16)
 
       }
   
   @ViewBuilder var CheckInBox: some View {
     let colour: InfoBoxColour = .purple
-        VStack(alignment: .center, spacing: 8){
-          Text("Update your Trackable items")
-            .foregroundStyle(colour.textColor)
-            .padding(.top, 8)
-            .font(.title3)
-            .bold()
-          Text("This allows us to keep our advice and analysis up to date")
-            .padding(12)
-            .foregroundStyle(colour.textColor)
-            .multilineTextAlignment(.center)
-          
-          Button("Submit"){
-            viewModel.showDailyCheckInSheet.toggle()
-          }
-          .tint(.backgroundGrey)
-          .bold()
-          .frame(maxWidth: .infinity)
-          .padding(12)
-          .background(colour.textColor)
-          .cornerRadius(48)
-          .padding(12)
-        }
-        .frame(maxWidth: .infinity)
-        .background(colour.backgroundColour)
-        .cornerRadius(12)
-        .padding(.horizontal, 16)
-
+    VStack(alignment: .center, spacing: 8){
+      Text("Update your Trackable items")
+        .foregroundStyle(colour.textColor)
+        .padding(.top, 8)
+        .font(.title3)
+        .bold()
+      Text("This allows us to keep our advice and analysis up to date")
+        .padding(12)
+        .foregroundStyle(colour.textColor)
+        .multilineTextAlignment(.center)
+      
+      Button("Submit"){
+        viewModel.showDailyCheckInSheet.toggle()
       }
-
-  
-  
+      .tint(.backgroundGrey)
+      .bold()
+      .frame(maxWidth: .infinity)
+      .padding(12)
+      .background(colour.textColor)
+      .cornerRadius(48)
+      .padding(12)
+    }
+    .frame(maxWidth: .infinity)
+    .background(
+      RoundedRectangle(cornerRadius: 16)
+        .fill(colour.backgroundColour)
+    )
+    .overlay(
+      RoundedRectangle(cornerRadius: 16)
+        .stroke(colour.textColor, lineWidth: 2)
+    )
+    .padding(.horizontal, 16)
+    
+  }
 }
 
 

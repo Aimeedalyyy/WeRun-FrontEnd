@@ -118,7 +118,7 @@ struct RunningMainView: View {
             Button(action: {
               viewModel.showMotivationInput = true
             }) {
-                Text("Start Workout")
+                Text("Start Run!")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
@@ -199,73 +199,73 @@ struct RunningMainView: View {
         }
     }
   
-  private var postRunSheet: some View {
-      NavigationView {
-          VStack(spacing: 30) {
-              Text("How did that workout feel")
-                  .font(.title2)
-                  .fontWeight(.semibold)
-                  .foregroundColor(.accentgreen)
-                  .multilineTextAlignment(.center)
-                  .padding(.top, 40)
-              
-              VStack(spacing: 10) {
-                Text("\(viewModel.initialRPE)")
-                      .font(.system(size: 60, weight: .bold))
-                      .foregroundColor(.accentgreen)
-                  
-                Text(rpeDescription(for: viewModel.initialRPE))
-                      .font(.subheadline)
-                      .foregroundColor(.accentgreen.opacity(0.8))
-              }
-              
-              Slider(value: Binding(
-                get: { Double(viewModel.initialRPE) },
-                set: { viewModel.initialRPE = Int($0) }
-              ), in: 1...10, step: 1)
-                  .accentColor(.accentgreen)
-                  .padding(.horizontal, 40)
-              
-              HStack {
-                  Text("Easy")
-                      .font(.caption)
-                      .foregroundColor(.accentgreen.opacity(0.6))
-                  Spacer()
-                  Text("Difficult")
-                      .font(.caption)
-                      .foregroundColor(.accentgreen.opacity(0.6))
-              }
-              .padding(.horizontal, 40)
-              
-              Spacer()
-              
-              Button(action: {
-                  viewModel.showPostRunQuestionnaire = false
-            
-              }) {
-                  Text("Finish Run")
-                      .font(.title3)
-                      .fontWeight(.semibold)
-                      .foregroundColor(.white)
-                      .frame(maxWidth: .infinity)
-                      .padding()
-                      .background(Color.accentgreen)
-                      .cornerRadius(15)
-              }
-              .padding(.horizontal, 40)
-              .padding(.bottom, 40)
-          }
-          .navigationTitle("Post-Run Check")
-          .navigationBarTitleDisplayMode(.inline)
-          .toolbar {
-              ToolbarItem(placement: .navigationBarLeading) {
-                  Button("Cancel") {
+    private var postRunSheet: some View {
+        NavigationView {
+            VStack(spacing: 30) {
+                Text("How did that workout feel")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.accentgreen)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 40)
+                
+                VStack(spacing: 10) {
+                  Text("\(viewModel.initialRPE)")
+                        .font(.system(size: 60, weight: .bold))
+                        .foregroundColor(.accentgreen)
+                    
+                  Text(rpeDescription(for: viewModel.initialRPE))
+                        .font(.subheadline)
+                        .foregroundColor(.accentgreen.opacity(0.8))
+                }
+                
+                Slider(value: Binding(
+                  get: { Double(viewModel.initialRPE) },
+                  set: { viewModel.initialRPE = Int($0) }
+                ), in: 1...10, step: 1)
+                    .accentColor(.accentgreen)
+                    .padding(.horizontal, 40)
+                
+                HStack {
+                    Text("Easy")
+                        .font(.caption)
+                        .foregroundColor(.accentgreen.opacity(0.6))
+                    Spacer()
+                    Text("Difficult")
+                        .font(.caption)
+                        .foregroundColor(.accentgreen.opacity(0.6))
+                }
+                .padding(.horizontal, 40)
+                
+                Spacer()
+                
+                Button(action: {
                     viewModel.showPostRunQuestionnaire = false
-                  }
-              }
-          }
-      }
-  }
+              
+                }) {
+                    Text("Finish Run")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.accentgreen)
+                        .cornerRadius(15)
+                }
+                .padding(.horizontal, 40)
+                .padding(.bottom, 40)
+            }
+            .navigationTitle("Post-Run Check")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                      viewModel.showPostRunQuestionnaire = false
+                    }
+                }
+            }
+        }
+    }
     
     // MARK: - Workout Summary View
     private var workoutSummaryView: some View {

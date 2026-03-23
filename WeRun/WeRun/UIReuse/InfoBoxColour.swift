@@ -13,6 +13,7 @@ import Foundation
 enum InfoBoxColour{
   case red
   case purple
+  case green
   
   var backgroundColour: Color{
     switch self {
@@ -20,7 +21,9 @@ enum InfoBoxColour{
       return .infoRed
     case .purple:
       return .backroundPurple
-  }
+    case .green:
+      return .accentgreen.opacity(0.25)
+    }
   }
     
     var textColor: Color {
@@ -29,6 +32,8 @@ enum InfoBoxColour{
         return .accentRed
       case .purple:
         return .accentPurple
+      case .green:
+        return .accentgreen
       }
     }
   

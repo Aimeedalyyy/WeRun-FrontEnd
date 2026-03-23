@@ -83,6 +83,7 @@ struct DailyCheckInView: View {
                   }
                 }
                 .pickerStyle(.segmented)
+                .tint(.accentPurple)
                 .frame(width: 150)
               }
               .transition(.opacity.combined(with: .slide))

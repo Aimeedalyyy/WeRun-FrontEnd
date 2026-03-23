@@ -73,14 +73,12 @@ struct JWTResponse: Codable {
     let refresh: String
 }
 
-
 struct RegisterResponse: Codable {
     let id: Int
     let username: String
     let email: String
     let affiliated_user: Int?
 }
-
 
 struct LogTrackableResponse: Codable {
     let id: String
@@ -92,7 +90,6 @@ struct userTrackableResponse: Codable {
   let trackables: [String]
   let symptoms: [String]
 }
-
 
 struct UserInfoResponse: Codable {
     let trackables: [UserTrackables]
@@ -120,8 +117,6 @@ struct UserSymptomsResponse: Codable {
     let cycle_day: Int?
     let notes: String?
 }
-
-
 
 struct UserCycleResponse: Codable {
     let id: String
@@ -164,8 +159,6 @@ struct UserCurrentCycleResponse: Codable {
     let last_period_start: String
 }
                  
-
-
 struct AdviceResponse: Codable{
   let date: String
   let phase: String
@@ -180,4 +173,59 @@ struct Advice: Codable{
   let title: String
   let category: String
   let priority: Int
+}
+
+struct RaceGoalResponse: Decodable, Encodable  {
+  let has_race_goal: Bool
+  let id: String?
+  let race_name: String?
+  let race_type: String?
+  let race_date: String?
+  let goal_time: String?
+  let is_active: Bool?
+  let created_at: String?
+}
+
+
+struct SubmitRaceGoalReponse: Codable {
+    let success: Bool
+    let id: String
+    let race_name: String
+    let race_type: String
+    let race_date: String
+    let goal_time: String
+    let is_active: Bool
+    let schedule: RaceSchedule
+}
+
+struct RaceSchedule: Codable {
+    let total_weeks: Int
+    let total_sessions: Int
+    let run_days_per_week: Int
+    let session_types: SessionTypes
+    let phase_breakdown: PhaseBreakdown
+    let first_session: String
+    let last_session: String
+    let phase_warnings: [String]
+}
+
+struct SessionTypes: Codable {
+    let easy: Int
+    let moderate: Int
+    let rest: Int
+    let long_run: Int
+}
+
+struct PhaseBreakdown: Codable {
+    let luteal: Int
+    let menstruation: Int
+    let follicular: Int
+    let ovulatory: Int?   // not in this sample but exists as a phase
+
+    enum CodingKeys: String, CodingKey {
+        case luteal       = "Luteal"
+        case menstruation = "Menstruation"
+        case follicular   = "Follicular"
+        case ovulatory    = "Ovulatory"
+    }
 }

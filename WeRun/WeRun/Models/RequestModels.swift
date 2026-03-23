@@ -12,13 +12,11 @@ struct LogTrackableRequest: Codable, Hashable {
     let value_text: String?
 }
 
-
 struct LogSymptomRequest: Codable, Hashable {
     let symptom_name: String
     let date: String
     let value_text: String?
 }
-
 
 struct RegisterRequest: Codable {
   let username: String
@@ -32,10 +30,15 @@ struct RegisterRequest: Codable {
   let symptoms: [String]?
 }
 
-
-
-
 struct LoginRequest: Codable {
     let username: String
     let password: String
 }
+
+struct RaceGoalRequest: Codable {
+  let race_type: String
+  let race_name: String
+  let race_date: String // YYYY-MM-DD
+  let goal_time: String
+}
+

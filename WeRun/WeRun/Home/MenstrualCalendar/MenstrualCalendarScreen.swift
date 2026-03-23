@@ -43,11 +43,13 @@ struct MenstrualCalendarScreen: View {
   @State var fullcycle: [CycleDay]
   @State private var showMenstrualCalendar = false
   @State var advice: [Advice]
+  @State var raceGoal: RaceGoalResponse
   @ObservedObject var viewModel: CalendarViewModel
+  @ObservedObject var raceViewModel: RaceViewModel
   
   
   
-  init(cycleDays: [CycleDay], advice: [Advice], viewModel: CalendarViewModel) {
+  init(cycleDays: [CycleDay], advice: [Advice], viewModel: CalendarViewModel, raceGoal: RaceGoalResponse, raceViewModel: RaceViewModel) {
     let todayIndex = cycleDays.firstIndex(where: {
       Calendar.current.isDateInToday($0.date)
     }) ?? 0
@@ -56,6 +58,8 @@ struct MenstrualCalendarScreen: View {
     self._selectedIndex = State(initialValue: todayIndex)
     self._advice = State(initialValue: advice)
     self.viewModel = viewModel
+    self.raceGoal = raceGoal
+    self.raceViewModel = raceViewModel
   }
   
   var body: some View {
@@ -85,17 +89,19 @@ struct MenstrualCalendarScreen: View {
       GeometryReader { geo in
           TabView(selection: $selectedIndex) {
               ForEach(Array(fullcycle.enumerated()), id: \.element.id) { index, day in
-                DayDetailPage(
-                    day: day,
-                    advice: viewModel.adviceByDate[Calendar.current.startOfDay(for: day.date)]
-                )
-                  .tag(index)
+                VStack{
+                  DayDetailPage(
+                      day: day,
+                      advice: viewModel.adviceByDate[Calendar.current.startOfDay(for: day.date)]
+                  )
+                }
+                .tag(index)
               }
           }
           .tabViewStyle(.page(indexDisplayMode: .never))
           .frame(height: geo.size.height)
       }
-      .frame(height: UIScreen.main.bounds.height * 0.75)
+      .frame(height: UIScreen.main.bounds.height * 0.50)
       .onChange(of: selectedIndex) { oldValue, newValue in
           let day = fullcycle[newValue]
 
@@ -103,12 +109,22 @@ struct MenstrualCalendarScreen: View {
               await viewModel.getDaysAdvice(date: day.date)
           }
       }
-      
       PhaseDotsView(
         currentPhase: fullcycle[selectedIndex].phase
       )
       
+      if raceGoal.has_race_goal {
+        RaceGoalCapsule(race: raceGoal)
+      } else
+      {
+        addRaceGoal
+      }
+
     }
+    .navigationDestination(isPresented: $viewModel.showAddRaceGoalModal){
+      SetRaceGoalView(viewModel: raceViewModel)
+      .background(Color.gray.opacity(0.05))
+  }
     .refreshable {
       print("🐞🐞 Pull to refresh !")
     }
@@ -312,19 +328,95 @@ struct MenstrualCalendarScreen: View {
                   RoundedRectangle(cornerRadius: 16)
                       .stroke(day.phase.color, lineWidth: 2)
               )
-
+            ScrollView{
               if let advice = advice?.advice {
                   ForEach(advice, id: \.id) { item in
                       AdviceCardRow(item: item, phase: day.phase)
                   }
               }
+            }
           }
           .padding(.horizontal)
           .padding(.vertical, 8)
           .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
       }
   }
-
+  
+  @ViewBuilder var addRaceGoal: some View {
+    let colour: InfoBoxColour = .green
+    VStack(alignment: .center, spacing: 8){
+      Text("No Current Race Goal Set")
+        .foregroundStyle(colour.textColor)
+        .padding(.top, 8)
+        .font(.title3)
+        .bold()
+      Text("Set a race goal and begin your personalised training plan")
+        .padding(12)
+        .foregroundStyle(colour.textColor)
+        .multilineTextAlignment(.center)
+      
+      Button("Set a Race Goal"){
+        viewModel.showAddRaceGoalModal.toggle()
+      }
+      .tint(.backgroundGrey)
+      .bold()
+      .frame(maxWidth: .infinity)
+      .padding(12)
+      .background(colour.textColor)
+      .cornerRadius(48)
+      .padding(12)
+    }
+    .frame(maxWidth: .infinity)
+    .background(
+      RoundedRectangle(cornerRadius: 16)
+        .fill(colour.backgroundColour)
+    )
+    .overlay(
+      RoundedRectangle(cornerRadius: 16)
+        .stroke(colour.textColor, lineWidth: 2)
+    )
+    .padding(.horizontal, 16)
+    
+  }
 }
+
+
+
+struct RaceGoalCapsule: View {
+  var race: RaceGoalResponse
+  
+  var body: some View {
+    VStack(spacing: 4) {
+      Text("Current Training Goal")
+        .font(.caption)
+        .padding(.top ,8)
+      
+      Text((race.race_name ?? race.race_type) ?? "No current race goal")
+        .font(.headline)
+        .padding(.bottom, 6)
+      
+      Text("Goal Finish Time: \(race.goal_time ?? "N/A")")
+        .font(.headline)
+        .padding(.bottom, 6)
+      
+      Text("Goal Race Date: \(race.race_date ?? "N/A")") //TODO: format date,
+        .font(.subheadline)
+        .padding(.bottom, 8)
+    }
+    .padding(.top, 8)
+    .frame(maxWidth: .infinity)
+    .background(
+      RoundedRectangle(cornerRadius: 16)
+        .fill(.accentgreen.opacity(0.25))
+    )
+    .overlay(
+      RoundedRectangle(cornerRadius: 16)
+        .stroke(.accentgreen, lineWidth: 2)
+    )
+  }
+}
+
+
+  
 
 

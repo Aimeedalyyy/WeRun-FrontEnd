@@ -68,16 +68,17 @@ class AppViewModel: ObservableObject {
       }
     } catch { print("API Error:", error) }
   }
-  
-  func getUserCalendar() async {
-    do{
-      let response = try await APIManager.shared.fetchCycleCalendar()
-      DispatchQueue.main.async {
-        self.myCalendar = response
-        print("🐞🧍 myCalendar: \(response)")
-      }
-    } catch { print("API Error:", error) }
-  }
+
+//  func getUserCalendar() async {
+//    do{
+//      let response = try await APIManager.shared.fetchCycleCalendar()
+//      DispatchQueue.main.async {
+//        self.myCalendar = response
+//        self.isLoading = false
+//        print("🐞🧍 myCalendar: \(response)")
+//      }
+//    } catch { print("API Error:", error) }
+//  }
   
   func getTodaysAdvice() async {
     do{

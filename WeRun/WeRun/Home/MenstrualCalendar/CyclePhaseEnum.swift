@@ -33,42 +33,6 @@ extension CyclePhase {
     }
 }
 
-struct CycleDay: Identifiable, Codable {
-    let id = UUID()
-    let day_of_cycle: Int
-    let date: Date
-    let phase: CyclePhase
-    let workout_type: String?
-
-    enum CodingKeys: String, CodingKey {
-        case day_of_cycle, date, phase, workout_type
-    }
-
-    // Memberwise init for use throughout the codebase
-    init(day_of_cycle: Int, date: Date, phase: CyclePhase, workout_type: String?) {
-        self.day_of_cycle = day_of_cycle
-        self.date = date
-        self.phase = phase
-        self.workout_type = workout_type
-    }
-
-    // Decodable init for JSON parsing
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        day_of_cycle = try container.decode(Int.self, forKey: .day_of_cycle)
-        phase = try container.decode(CyclePhase.self, forKey: .phase)
-        workout_type = try container.decodeIfPresent(String.self, forKey: .workout_type)
-
-        let dateString = try container.decode(String.self, forKey: .date)
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(identifier: "UTC")
-        guard let parsedDate = formatter.date(from: dateString) else {
-            throw DecodingError.dataCorruptedError(forKey: .date, in: container, debugDescription: "Invalid date format: \(dateString)")
-        }
-        date = parsedDate
-    }
-}
 
 
 enum SampleData {

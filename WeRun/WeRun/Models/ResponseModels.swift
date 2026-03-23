@@ -217,9 +217,9 @@ struct SessionTypes: Codable {
 }
 
 struct PhaseBreakdown: Codable {
-    let luteal: Int
-    let menstruation: Int
-    let follicular: Int
+    let luteal: Int?
+    let menstruation: Int?
+    let follicular: Int?
     let ovulatory: Int?   // not in this sample but exists as a phase
 
     enum CodingKeys: String, CodingKey {
@@ -229,3 +229,26 @@ struct PhaseBreakdown: Codable {
         case ovulatory    = "Ovulatory"
     }
 }
+
+struct WorkoutSession: Decodable, Encodable{
+  let session_type: String
+  let distance: Double?
+}
+
+struct CycleDay: Identifiable, Codable {
+    var id = UUID()
+
+    let day_of_cycle: Int
+    let date: Date
+    let phase: CyclePhase
+    let workout: WorkoutSession?
+  
+  enum CodingKeys: String, CodingKey {
+      case day_of_cycle
+      case date
+      case phase
+      case workout
+  }
+}
+
+

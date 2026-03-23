@@ -41,7 +41,7 @@ func generateCycleDays(
             day_of_cycle: cycleDayNumber,
             date: date,
             phase: .menstruation,
-            workout_type: nil
+            workout: nil
           )
         )
         cycleDayNumber += 1
@@ -70,7 +70,7 @@ func generateCycleDays(
             day_of_cycle: cycleDayNumber,
             date: date,
             phase: .follicular,
-            workout_type: nil
+            workout: nil
           )
         )
         cycleDayNumber += 1
@@ -91,7 +91,7 @@ func generateCycleDays(
             day_of_cycle: cycleDayNumber,
             date: date,
             phase: .ovulation,
-            workout_type: nil
+            workout: nil
           )
         )
         cycleDayNumber += 1
@@ -112,7 +112,7 @@ func generateCycleDays(
             day_of_cycle: cycleDayNumber,
             date: date,
             phase: .luteal,
-            workout_type: nil
+            workout: nil
           )
         )
         cycleDayNumber += 1
@@ -127,23 +127,23 @@ func generateCycleDays(
   }
 }
 
-func assignWorkouts(to days: [CycleDay]) -> [CycleDay] {
-    days.map { day in
-        var workout: String?
-        switch day.phase {
-        case .menstruation:
-            workout = ["Rest", "Easy Run", "Mobility"].randomElement()
-        case .follicular:
-            workout = ["Intervals", "Tempo Run", "Strength"].randomElement()
-        case .ovulation:
-            workout = ["Speed Session", "Race Pace"].randomElement()
-        case .luteal:
-            workout = ["Steady Run", "Long Run", "Easy Run"].randomElement()
-        }
-      return CycleDay(day_of_cycle: day.day_of_cycle, date: day.date, phase: day.phase, workout_type: workout)
-    }
-}
-
+//func assignWorkouts(to days: [CycleDay]) -> [CycleDay] {
+//    days.map { day in
+//        var workout: String?
+//        switch day.phase {
+//        case .menstruation:
+//            workout = ["Rest", "Easy Run", "Mobility"].randomElement()
+//        case .follicular:
+//            workout = ["Intervals", "Tempo Run", "Strength"].randomElement()
+//        case .ovulation:
+//            workout = ["Speed Session", "Race Pace"].randomElement()
+//        case .luteal:
+//            workout = ["Steady Run", "Long Run", "Easy Run"].randomElement()
+//        }
+//      return CycleDay(day_of_cycle: day.day_of_cycle, date: day.date, phase: day.phase, workout_type: workout)
+//    }
+//}
+//
 
 func buildCalendarDays(from cycles: [UserCycleResponse]) -> [CycleDay] {
   guard let current = cycles.sorted(by: { $0.period_start_date > $1.period_start_date }).first else {

@@ -26,13 +26,10 @@ struct HomeView: View {
                 ProgressView("Loading...")
               } else
                 if healthViewModel.dataFetched {
-                  if let cal = viewModel.myCalendar{
+                  if let cal = calendarViewModel.myCalendar{
                     if let advice = viewModel.myAdvice?.advice {
-                      if let raceGoal = viewModel.raceGoal{
-                        MenstrualCalendarScreen(cycleDays: cal, advice: advice, viewModel: calendarViewModel, raceGoal: raceGoal, raceViewModel: raceViewModel)
+                        MenstrualCalendarScreen(cycleDays: cal, advice: advice, viewModel: calendarViewModel, raceViewModel: raceViewModel, appViewModel: viewModel)
                           .padding(.horizontal, 12)
-                      }
-                      
                     }
                   }
                   
@@ -42,14 +39,12 @@ struct HomeView: View {
               }
             }
             .background(Color.gray.opacity(0.05))
-            .onAppear() {
-              Task{
+            .task {
                 await viewModel.testCall()
                 await viewModel.getUserInfo()
-                await viewModel.getUserCalendar()
+                await calendarViewModel.getUserCalendar()
                 await viewModel.getTodaysAdvice()
                 await viewModel.getRaceGoal()
-              }
             }
 
         }

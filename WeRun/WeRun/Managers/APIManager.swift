@@ -79,7 +79,25 @@ class APIManager {
     }
     
     // 6️⃣ Decode
-    return try JSONDecoder().decode(T.self, from: data)
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .custom({ decoder in
+        let container = try decoder.singleValueContainer()
+        let str = try container.decode(String.self)
+        
+        // Try full ISO datetime first (e.g. "2025-01-01T07:00:00+00:00")
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime]
+        if let date = isoFormatter.date(from: str) { return date }
+        
+        // Fall back to date-only (e.g. "2026-03-19")
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        if let date = dateFormatter.date(from: str) { return date }
+        
+        throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot decode date: \(str)")
+    })
+    return try decoder.decode(T.self, from: data)
   }
 
     

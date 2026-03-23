@@ -24,6 +24,7 @@ class RaceViewModel: ObservableObject {
     @Published var showSuccessToast: Bool = false
     @Published var isSubmitting: Bool = false
     @Published var errorMessage: String? = nil
+  
 
     // MARK: - Computed helpers
     var canSubmit: Bool {
@@ -53,7 +54,7 @@ class RaceViewModel: ObservableObject {
 
     // MARK: - Existing: fetch
     func getRaceGoal() async {
-        if raceGoal != nil { return }
+        //if raceGoal != nil { return }
         do {
             let response = try await APIManager.shared.getRaceGoal()
             DispatchQueue.main.async {
@@ -95,6 +96,7 @@ class RaceViewModel: ObservableObject {
                 self.isSubmitting = false
                 withAnimation { self.showSuccessToast = true }
                 print("🐞🏃‍♀️ Submitted race goal: \(response)")
+                
             }
         } catch {
             DispatchQueue.main.async {

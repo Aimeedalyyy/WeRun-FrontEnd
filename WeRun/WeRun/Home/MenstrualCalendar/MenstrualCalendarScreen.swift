@@ -9,47 +9,19 @@ import SwiftUI
 import Foundation
 
 
-struct CalendarDay: Codable, Identifiable {
-    let id = UUID()
-    let day_of_cycle: Int
-    let date: String
-    let phase: String
-    let workout_type: String?
-
-    enum CodingKeys: String, CodingKey {
-        case day_of_cycle, date, phase, workout_type
-    }
-
-    // Convert to your existing CycleDay
-    func toCycleDay() -> CycleDay? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(identifier: "UTC")
-        guard let parsedDate = formatter.date(from: date) else { return nil }
-        return CycleDay(
-          day_of_cycle: day_of_cycle,
-            date: parsedDate,
-            phase: CyclePhase(rawValue: phase) ?? .follicular,
-          workout_type: workout_type
-        )
-    }
-}
-
-
-
 struct MenstrualCalendarScreen: View {
   @State private var selectedDay: CycleDay?
   @State private var selectedIndex: Int
   @State var fullcycle: [CycleDay]
   @State private var showMenstrualCalendar = false
   @State var advice: [Advice]
-  @State var raceGoal: RaceGoalResponse
   @ObservedObject var viewModel: CalendarViewModel
   @ObservedObject var raceViewModel: RaceViewModel
+  @ObservedObject var appViewModel: AppViewModel
   
   
   
-  init(cycleDays: [CycleDay], advice: [Advice], viewModel: CalendarViewModel, raceGoal: RaceGoalResponse, raceViewModel: RaceViewModel) {
+  init(cycleDays: [CycleDay], advice: [Advice], viewModel: CalendarViewModel, raceViewModel: RaceViewModel, appViewModel: AppViewModel) {
     let todayIndex = cycleDays.firstIndex(where: {
       Calendar.current.isDateInToday($0.date)
     }) ?? 0
@@ -58,8 +30,8 @@ struct MenstrualCalendarScreen: View {
     self._selectedIndex = State(initialValue: todayIndex)
     self._advice = State(initialValue: advice)
     self.viewModel = viewModel
-    self.raceGoal = raceGoal
     self.raceViewModel = raceViewModel
+    self.appViewModel = appViewModel
   }
   
   var body: some View {
@@ -113,11 +85,14 @@ struct MenstrualCalendarScreen: View {
         currentPhase: fullcycle[selectedIndex].phase
       )
       
-      if raceGoal.has_race_goal {
-        RaceGoalCapsule(race: raceGoal)
-      } else
-      {
-        addRaceGoal
+      if let raceGoal = raceViewModel.raceGoal {
+        if raceGoal.has_race_goal {
+          RaceGoalCapsule(race: raceGoal)
+        }
+        else
+        {
+          addRaceGoal
+        }
       }
 
     }
@@ -127,10 +102,14 @@ struct MenstrualCalendarScreen: View {
   }
     .refreshable {
       print("🐞🐞 Pull to refresh !")
+      await raceViewModel.getRaceGoal()
+      await viewModel.getUserCalendar()
     }
     .onAppear(){
       Task{
         await viewModel.getDaysAdvice(date: Date())
+        //await viewModel.getUserCalendar()
+        await raceViewModel.getRaceGoal()
       }
     }
     .onChange(of: selectedIndex) { _, newIndex in
@@ -227,7 +206,7 @@ struct MenstrualCalendarScreen: View {
           Text(String(day.day_of_cycle))
             .font(.caption)
           
-          if day.workout_type != nil {
+          if day.workout?.session_type != "rest" {
             Circle()
               .frame(width: 4, height: 4)
           }
@@ -309,14 +288,8 @@ struct MenstrualCalendarScreen: View {
                   Text(day.phase.rawValue.capitalized + " Phase")
                       .font(.headline)
 
-                  if let workout = day.workout_type {
-                      Text("Recommended: \(workout)")
-                          .font(.subheadline)
-                  } else {
-                      Text("Rest day")
-                          .font(.subheadline)
-                          .foregroundStyle(.secondary)
-                  }
+                  Text(workoutLabel(day.workout))
+                      .font(.subheadline)
               }
               .frame(maxWidth: .infinity)
               .padding(12)
@@ -380,7 +353,16 @@ struct MenstrualCalendarScreen: View {
   }
 }
 
-
+func workoutLabel(_ workout: WorkoutSession?) -> String {
+    guard let workout = workout else { return "Rest day" }
+    if workout.session_type == "rest" { return "Rest day" }
+    let dist = String(format: "%.2f", workout.distance ?? 0)
+    let formatted = workout.session_type
+        .split(separator: "_")
+        .map { $0.capitalized }
+        .joined(separator: " ")
+    return "Recommended: \(dist)km \(formatted) Run"
+}
 
 struct RaceGoalCapsule: View {
   var race: RaceGoalResponse

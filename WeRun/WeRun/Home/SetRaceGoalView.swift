@@ -18,10 +18,20 @@ enum RaceTypesEnum: Int, CaseIterable {
         switch self {
         case .five:     return "5k"
         case .ten:      return "10k"
-        case .half:     return "Half Marathon"
-        case .marathon: return "Marathon"
+        case .half:     return "half_marathon"
+        case .marathon: return "marathon"
         }
     }
+  
+  var Label: String {
+      switch self {
+      case .five:     return "5k"
+      case .ten:      return "10k"
+      case .half:     return "Half Marathon"
+      case .marathon: return "Marathon"
+      }
+  }
+
 
     var defaultFinishTime: (hours: Int, minutes: Int, seconds: Int) {
         switch self {
@@ -88,7 +98,7 @@ struct SetRaceGoalView: View {
                             .padding(.horizontal, 16)
 
                         HorizontalRaceSelector(
-                            options: RaceTypesEnum.allCases.map { $0.stringValue },
+                          options: RaceTypesEnum.allCases.map { $0.Label },
                             selectedIndex: Binding(
                               get: { viewModel.raceType?.rawValue },
                                 set: { newVal in

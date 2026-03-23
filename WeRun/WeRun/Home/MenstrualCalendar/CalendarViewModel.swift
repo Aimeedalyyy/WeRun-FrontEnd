@@ -13,6 +13,7 @@ class CalendarViewModel: ObservableObject {
   @Published var myAdviceforDay: AdviceResponse?
   @Published var adviceByDate: [Date: AdviceResponse] = [:]
   @Published var showAddRaceGoalModal: Bool = false
+  @Published var myCalendar: [CycleDay]?
   
   
   
@@ -26,5 +27,23 @@ class CalendarViewModel: ObservableObject {
       }
     } catch { print("API Error:", error) }
   }
+  
+  
+  func getUserCalendar() async {
+    Task.detached {
+        do {
+            let response = try await APIManager.shared.fetchCycleCalendar()
+            await MainActor.run {
+                self.myCalendar = response
+                print("🐞🧍 myCalendar: \(response)")
+            }
+        } catch {
+            print("API Error:", error)
+        }
+    }
+  }
+
 }
+
+
 
